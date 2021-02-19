@@ -61,8 +61,8 @@ jobs:
     - uses: satackey/action-docker-layer-caching@v0.0.11
       continue-on-error: true
       with:
-        key: dos-${{ env.CACHE_KEY }}-${{ matrix.distro }}-{hash}
-        restore-keys: dos-${{ env.CACHE_KEY }}-${{ matrix.distro }}-
+        key: dos2-${{ env.CACHE_KEY }}-${{ matrix.distro }}-{hash}
+        restore-keys: dos2-${{ env.CACHE_KEY }}-${{ matrix.distro }}-
         skip-save: true
     - name: Update dependencies in image.
       run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
@@ -91,7 +91,9 @@ jobs:
       #  files: test_results/*.xml
     - name: Run NLT Test
       run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./utils/node_local_test.py --no-root kv
-    - name: Run FI Test
-      run: docker run --cap-add SYS_ADMIN --cap-add NET_ADMIN --device /dev/fuse --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./utils/node_local_test.py --no-root fi
-    - name: Rebuild on tmpfs
-      run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image scons BUILD_ROOT=/mnt/daos PREFIX=/opt/daos --jobs 10 COMPILER=clang
+    #- name: Run FI Test
+    # run: docker run --cap-add SYS_ADMIN --cap-add NET_ADMIN --device /dev/fuse --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./utils/node_local_test.py --no-root fi
+      #- name: Rebuild on tmpfs
+      #run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image scons BUILD_ROOT=/mnt/daos PREFIX=/opt/daos --jobs 10 COMPILER=clang
+    - name: Run inside
+      run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./utils/run_in_ga.sh
