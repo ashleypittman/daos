@@ -57,24 +57,20 @@ ARG DEPS_JOBS=1
 # root then run a chown command which is frustrating as the copy can take a few
 # seconds.
 WORKDIR /home/daos/pre
-COPY SConstruct .
-COPY utils/sl utils/sl
-COPY utils/build.config utils/
-RUN chown -R daos_server.daos_server /home/daos
 USER daos_server:daos_server
+COPY SConstruct .
+COPY --chown=daos_server:daos_server utils/sl utils/sl
+COPY --chown=daos_server:daos_server utils/build.config utils/
 RUN ln -s utils/sl site_scons
 
 RUN [ "$DAOS_DEPS_BUILD" != "yes" ] || \
-    (scons --build-deps=yes --jobs $DEPS_JOBS PREFIX=/opt/daos --deps-only && \
+    (scons --build-deps=yes --jobs $DEPS_JOBS PREFIX=/opt/daos --deps-only BUILD_TYPE=debug && \
     /bin/rm -rf build *.gz)
 
 WORKDIR /home/daos/daos/
-COPY VERSION LICENSE ftest.sh SConstruct ./
-COPY utils utils
-COPY src src
-USER root:root
-RUN chown -R daos_server.daos_server /home/daos
-USER daos_server:daos_server
+COPY --chown=daos_server:daos_server VERSION LICENSE ftest.sh SConstruct ./
+COPY --chown=daos_server:daos_server utils utils
+COPY --chown=daos_server:daos_server src src
 RUN ln -s utils/sl site_scons
 
 ARG DAOS_BUILD=$DAOS_DEPS_BUILD
@@ -83,7 +79,7 @@ ARG COMPILER=gcc
 
 # Build DAOS
 RUN [ "$DAOS_BUILD" != "yes" ] || \
-    (scons --jobs $JOBS install PREFIX=/opt/daos COMPILER=$COMPILER && \
+    (scons --jobs $JOBS install PREFIX=/opt/daos COMPILER=$COMPILER TARGET_TYPE=debug BUILD_TYPE=debug && \
     /bin/rm -rf build && \
     cp -r utils/config/examples /opt/daos)
 
@@ -96,30 +92,4 @@ ENV LD_LIBRARY_PATH=/opt/daos/lib:/opt/daos/lib64:/opt/daos/bin/../lib64/daos_sr
 ENV PATH=/opt/daos/bin:$PATH
 ENV FI_SOCKETS_MAX_CONN_RETRY=1
 
-# Build java and hadoop bindings
-WORKDIR /home/daos/daos/src/client/java
-# Set maven repo mirror
-RUN mkdir -p /home/daos/.m2
-RUN echo -e "<settings>\n\
-        <mirrors>\n\
-                <mirror>\n\
-                        <id>google-maven-central</id>\n\
-                        <name>GCS Maven Central mirror</name>\n\
-                        <url>https://maven-central.storage-download.googleapis.com/maven2/</url>\n\
-                        <mirrorOf>central</mirrorOf>\n\
-                </mirror>\n\
-        </mirrors>\n\
-</settings>" > /home/daos/.m2/settings.xml
-
-ARG DAOS_JAVA_BUILD=$DAOS_BUILD
-
-RUN [ "$DAOS_JAVA_BUILD" != "yes" ] || \
-    mvn clean install -T 1C -DskipITs -Dgpg.skip -Ddaos.install.path=/opt/daos
-WORKDIR /home/daos/daos
-
-RUN id
-RUN ls -l /mnt
-
 USER root:root
-# Remove local copy
-#RUN rm -rf /home/daos/*

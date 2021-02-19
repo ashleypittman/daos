@@ -5,6 +5,9 @@ set -x
 CHANGE_TARGET=$GITHUB_BASE_REF
 
 grep -r a4395cdf08fb60daf629d2bfd407be961f28a4b5 .git
+find .git
+git log
+git remote -v
 
 git diff --name-only $GITHUB_BASE_REF...
 
