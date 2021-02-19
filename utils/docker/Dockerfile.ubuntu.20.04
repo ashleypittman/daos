@@ -56,7 +56,6 @@ ARG DEPS_JOBS=1
 # The COPY command has a --chown option but it's not well supported so copy as
 # root then run a chown command which is frustrating as the copy can take a few
 # seconds.
-USER daos_server:daos_server
 WORKDIR /home/daos/pre
 COPY --chown=daos_server:daos_server SConstruct .
 COPY --chown=daos_server:daos_server utils/sl utils/sl
