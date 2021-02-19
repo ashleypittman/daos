@@ -92,6 +92,6 @@ jobs:
     - name: Run NLT Test
       run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./utils/node_local_test.py --no-root kv
     - name: Run FI Test
-      run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./utils/node_local_test.py --no-root fi
+      run: docker run --cap-add SYS_ADMIN --device fuse --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./utils/node_local_test.py --no-root fi
     - name: Rebuild on tmpfs
-      run: docker run --cap-add SYS_ADMIN --device fuse --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image scons BUILD_ROOT=/mnt/daos PREFIX=/opt/daos --jobs 10 COMPILER=clang
+      run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image scons BUILD_ROOT=/mnt/daos PREFIX=/opt/daos --jobs 10 COMPILER=clang
