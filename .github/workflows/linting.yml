@@ -22,11 +22,11 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: test
-      run: echo "::set-output name=action_fruit::strawberry"
+      #    - name: test
+      #run: echo "::set-output name=action_fruit::strawberry"
     - name: Adding to path.
       run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-    - name: Run Check
+    - name: Installing codespell
       run: pip3 install --user codespell
     - name: Run Check
       run: ./ci/patch_src_in_place
