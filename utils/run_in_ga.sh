@@ -1,14 +1,16 @@
 #!/bin/bash
 
-set -x
+set -e
 
-scons --help
-
+echo ::group::Build
 scons --jobs 10 install PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=debug BUILD_TYPE=dev
+echo ::endgroup::
 
 . utils/sl/setup_local.sh
 ./utils/setup_daos_admin.sh
 
+echo ::group::Key Value test
 ./utils/node_local_test.py --no-root kv
-./utils/node_local_test.py --no-root fi
+echo ::endgroup::
+#./utils/node_local_test.py --no-root fi
 
