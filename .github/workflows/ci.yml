@@ -110,5 +110,6 @@ jobs:
     - name: Rebuild on tmpfs
       run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image scons BUILD_ROOT=/mnt/daos PREFIX=/opt/daos --jobs 10 COMPILER=clang
     - name: Run NLT Test
-      if: always()
-      run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./utils/node_local_test.py --no-root kv
+      run: |
+              docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./utils/node_local_test.py --no-root kv
+              docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./utils/node_local_test.py --no-root fi
