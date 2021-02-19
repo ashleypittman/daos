@@ -128,9 +128,11 @@ class WarningsFactory():
 
     # Error levels supported by the reporting are LOW, NORMAL, HIGH, ERROR.
 
-    def __init__(self, filename):
+    def __init__(self, filename, post=False, check=None):
         self._fd = open(filename, 'w')
         self.filename = filename
+        self.post = post
+        self.check = check
         self.issues = []
         self.pending = []
         self._running = True
@@ -218,6 +220,9 @@ class WarningsFactory():
             self.reset_pending()
         self.pending.append((line, message))
         self._flush()
+        if self.post:
+          print('::warning file={},line={},::{}{}'.format(line.filename, line.lineno, self.check,
+              message))
 
     def reset_pending(self):
         """Reset the pending list
@@ -2417,8 +2422,8 @@ def main():
 
     wf = WarningsFactory('nlt-errors.json')
 
-    wf_server = WarningsFactory('nlt-server-leaks.json')
-    wf_client = WarningsFactory('nlt-client-leaks.json')
+    wf_server = WarningsFactory('nlt-server-leaks.json', post=True, check='Server leaks')
+    wf_client = WarningsFactory('nlt-client-leaks.json', post=True, check='Fault injection')
 
     conf.set_wf(wf)
     conf.set_args(args)
