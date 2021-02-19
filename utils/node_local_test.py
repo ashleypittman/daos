@@ -221,7 +221,8 @@ class WarningsFactory():
         self.pending.append((line, message))
         self._flush()
         if self.post:
-          print('::warning file={},line={},::{}{}'.format(line.filename, line.lineno, self.check,
+            # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions
+          print('::warning file={},line={},::{},{}'.format(line.filename, line.lineno, self.check,
               message))
 
     def reset_pending(self):
@@ -2422,7 +2423,7 @@ def main():
 
     wf = WarningsFactory('nlt-errors.json')
 
-    wf_server = WarningsFactory('nlt-server-leaks.json', post=True, check='Server leaks')
+    wf_server = WarningsFactory('nlt-server-leaks.json', post=True, check='Server leak checking')
     wf_client = WarningsFactory('nlt-client-leaks.json', post=True, check='Fault injection')
 
     conf.set_wf(wf)

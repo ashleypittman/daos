@@ -2,11 +2,9 @@
 
 set -x
 
-ls -lA
-
 CHANGE_TARGET=$GITHUB_BASE_REF
 
-cat .git/refs/remotes/origin/master
+grep -r a4395cdf08fb60daf629d2bfd407be961f28a4b5 .git
 
 git diff --name-only $GITHUB_BASE_REF...
 

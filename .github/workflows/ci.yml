@@ -58,7 +58,7 @@ jobs:
                           --build-arg DAOS_BUILD=no --build-arg DEPS_JOBS=10
                           --build-arg UID
   Build2:
-    name: Run the build
+    name: Run DAOS tests
     #needs: Prepare
     runs-on: ubuntu-20.04
     strategy:
@@ -92,8 +92,6 @@ jobs:
                           --build-arg DAOS_JAVA_BUILD=no --build-arg DEPS_JOBS=10
                           --build-arg UID
                           -t build-image
-    - name: check server
-      run: docker run build-image ldd /opt/daos/bin/daos_engine
       #    - name: Run Unit Tests
       #run: docker run --name build-ut --tmpfs /mnt/daos build-image ./utils/run_test.sh
       #- name: mkdir
@@ -109,17 +107,8 @@ jobs:
       #with:
       #  github_token: ${{ secrets.GITHUB_TOKEN }}
       #  files: test_results/*.xml
-    - name: Build but faster
-      run: docker run --tmpfs /mnt/daos build-image id
-    - name: Build but faster
-      run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ls -ld /mnt/daos
-    - name: Build but faster
-      run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image scons BUILD_ROOT=/mnt/daos PREFIX=/opt/daos --jobs 10
+    - name: Rebuild on tmpfs
+      run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image scons BUILD_ROOT=/mnt/daos PREFIX=/opt/daos --jobs 10 COMPILER=clang
     - name: Run NLT Test
       if: always()
       run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./utils/node_local_test.py --no-root kv
-    - name: Copy results
-      run: docker cp build-ut:/home/daos/*.json ./
-    - name: grep
-      if: always()
-      run: grep . *.json
