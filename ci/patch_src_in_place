@@ -14,6 +14,7 @@ git diff --name-only $GITHUB_BASE_REF...
 git fetch
 
 git diff ad82b0a7b8e3cbdbda7427d524493f8bfd35bcf0 a4395cdf08fb60daf629d2bfd407be961f28a4b5
+git diff --name-only ad82b0a7b8e3cbdbda7427d524493f8bfd35bcf0 a4395cdf08fb60daf629d2bfd407be961f28a4b5
 
 # shellcheck disable=SC2046,SC2035
 codespell -w --ignore-words ci/codespell.ignores --builtin clear,rare,informal,names,en-GB_to_en-US --skip *.png,*.PNG,*.pyc,src/rdb/raft/*,./src/control/vendor/*,RSA.golden,utils/rpms/* $(git diff --name-only $GITHUB_BASE_REF...)

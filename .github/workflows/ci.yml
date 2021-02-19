@@ -67,7 +67,7 @@ jobs:
     - name: Update dependencies in image.
       run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
                           --build-arg DAOS_BUILD=no --build-arg DEPS_JOBS=10
-                          --build-arg UID
+                          --build-arg UID -t build-image
     #- name: Build daos
     #  run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
     #                      --build-arg COMPILER=${{ matrix.compiler }}
