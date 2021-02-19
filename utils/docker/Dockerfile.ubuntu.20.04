@@ -65,11 +65,11 @@ RUN ln -s utils/sl site_scons && [ "$DAOS_DEPS_BUILD" != "yes" ] || \
 
 COPY --chown=daos_server:daos_server utils/run_in_ga.sh utils/
 
-#WORKDIR /home/daos/daos/
-#COPY --chown=daos_server:daos_server VERSION LICENSE ftest.sh SConstruct ./
-#COPY --chown=daos_server:daos_server utils utils
-#COPY --chown=daos_server:daos_server src src
-#RUN ln -s utils/sl site_scons
+WORKDIR /home/daos/daos/
+COPY --chown=daos_server:daos_server VERSION LICENSE ftest.sh SConstruct ./
+COPY --chown=daos_server:daos_server utils utils
+COPY --chown=daos_server:daos_server src src
+RUN ln -s utils/sl site_scons
 
 #ARG DAOS_BUILD=$DAOS_DEPS_BUILD
 #ARG JOBS=$DEPS_JOBS

@@ -30,8 +30,8 @@ jobs:
     - uses: satackey/action-docker-layer-caching@v0.0.11
       continue-on-error: true
       with:
-        key: dos3-${{ env.CACHE_KEY }}-${{ matrix.distro }}-{hash}
-        restore-keys: dos3-${{ env.CACHE_KEY }}-${{ matrix.distro }}-
+        key: dos4-${{ env.CACHE_KEY }}-${{ matrix.distro }}-{hash}
+        restore-keys: dos4-${{ env.CACHE_KEY }}-${{ matrix.distro }}-
     - name: Build base Docker image
       run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
                           --build-arg DAOS_DEPS_BUILD=no --build-arg UID
