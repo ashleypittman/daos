@@ -47,6 +47,8 @@ jobs:
     - name: Build DAOS dependencies in image
       run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
                           --build-arg DAOS_BUILD=no --build-arg UID
+    - name: Shrink images
+      run: docker image prune --force --filter label=DEPS_BUILD
 
   # Run the build.  Will pull the cache from either an exact match
   # of the files, or the most recent cache available.  Will not push

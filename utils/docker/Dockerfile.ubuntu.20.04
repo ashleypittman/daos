@@ -23,29 +23,21 @@ RUN apt-get update &&							\
     apt-get clean all
 
 # hack the default shell to bash instead of dash
-RUN rm /bin/sh && ln -s bash /bin/sh
-
-RUN locale-gen en_US.UTF-8
-
-# use Java 8 instead of default Java 11
-RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+RUN rm /bin/sh && ln -s bash /bin/sh && locale-gen en_US.UTF-8 && \
+    update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 
 ARG UID=1000
 
 # Add DAOS users
-RUN useradd --uid $UID --user-group --create-home --shell /bin/bash --home /home/daos daos_server
-RUN echo "daos_server:daos_server" | chpasswd
-RUN useradd --user-group --create-home --shell /bin/bash daos_agent
-RUN echo "daos_agent:daos_agent" | chpasswd
+RUN useradd --uid $UID --user-group --create-home --shell /bin/bash --home /home/daos daos_server && \
+   echo "daos_server:daos_server" | chpasswd && \
+   useradd --user-group --create-home --shell /bin/bash daos_agent && \
+   echo "daos_agent:daos_agent" | chpasswd
 
 # Create directory for DAOS backend storage
-RUN mkdir -p /opt/daos && chown -R daos_server.daos_server /opt/daos
-RUN mkdir /mnt/daos && chown daos_server.daos_server /mnt/daos
-RUN mkdir /var/run/daos_server && chown daos_server.daos_server /var/run/daos_server
-RUN mkdir /var/run/daos_agent && chown daos_agent.daos_agent /var/run/daos_agent
-
-ARG CACHEBUST=1
-RUN apt-get -y upgrade && apt-get clean all
+RUN mkdir -p /opt/daos /mnt/daos /var/run/daos_server /var/run/daos_agent &&	\
+    chown daos_server.daos_server /opt/daos /mnt/daos /var/run/daos_server &&	\
+    chown daos_agent.daos_agent /var/run/daos_agent
 
 # Control what to build.  By default Dockerfiles build everything to allow for
 # ease-of-use for users, however in CI everything is turned off and then
@@ -55,21 +47,21 @@ ARG DAOS_JAVA_BUILD=$DAOS_BUILD
 # Legacy, NOBUILD should be set to any string to disable all three.
 ARG NOBUILD=no
 
-
 # The COPY command has a --chown option but it's not well supported so copy as
 # root then run a chown command which is frustrating as the copy can take a few
 # seconds.
 WORKDIR /home/daos/pre
-COPY SConstruct .
-COPY utils/sl utils/sl
-COPY utils/build.config utils/
-RUN chown -R daos_server.daos_server /home/daos
+COPY --chown=daos_server:daos_server SConstruct .
+COPY --chown=daos_server:daos_server utils/sl utils/sl
+COPY --chown=daos_server:daos_server utils/build.config utils/
 USER daos_server:daos_server
-RUN ln -s utils/sl site_scons
 
-RUN [ "$DAOS_DEPS_BUILD" != "yes" ] || \
+RUN ln -s utils/sl site_scons && [ "$DAOS_DEPS_BUILD" != "yes" ] || \
     (scons --build-deps=yes -j 4 install PREFIX=/opt/daos --deps-only && \
     /bin/rm -rf build *.gz)
+
+# Set a label.
+LABEL DEPS_BUILD=$DAOS_DEPS_BUILD
 
 WORKDIR /home/daos/daos/
 COPY VERSION LICENSE ftest.sh SConstruct ./
