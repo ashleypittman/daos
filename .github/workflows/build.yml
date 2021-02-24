@@ -1,0 +1,23 @@
+
+name: Setup cache
+
+on: push
+
+jobs:
+
+  startup:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Populate cache
+      uses: actions/cache@v2
+      with:
+        path: built
+        key: daos-built
+
+    - name: Compress
+      run: mkdir build && tar -tvf built/out.tar utils
