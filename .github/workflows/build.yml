@@ -25,6 +25,56 @@ jobs:
         path: built
         key: daos-built-${{ hashFiles('built/date.txt') }}
 
+  # Build a base Docker image, and save it with a key based on the
+  # hash.
+  # If the source hasn't changed then this will be a cache-read, followed
+  # by a cache-write which will fail as the cache exists, but the read will
+  # put it to the front of the LRU queue.
+  # If the source has changed then the cache-read will fail, a new build will
+  # be performed and saved to the cache with a new key.
+  Prepare:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - uses: satackey/action-docker-layer-caching@v0.0.11
+      with:
+        key: docker-images-test-${{ hashFiles('utils', 'src', 'SConstruct') }}
+    - name: Set UID
+      run: echo UID=`id -u` >> $GITHUB_ENV
+    - name: Build base Docker image
+      run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
+                          --build-arg DAOS_DEPS_BUILD=no --build-arg UID
+
+  # Run the build.  Will pull the cache from either an exact match
+  # of the files, or the most recent cache available.  Will not push
+  # any cache.
+  Build:
+    runs-on: ubuntu-20.04
+    needs: Prepare
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Restore Cache
+      id: cache-restore
+      uses: satackey/action-docker-layer-caching@v0.0.11
+      with:
+        key: docker-images-test-${{ hashFiles('utils', 'src', 'SConstruct') }}-{hash}
+        restore-keys: docker-images-test-
+        skip-save: true
+    - name: Set UID
+      run: echo UID=`id -u` >> $GITHUB_ENV
+    - name: Check for new:
+      if: steps.cache-restore.outputs.cache-hit != 'true':
+      run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
+                          --build-arg DAOS_DEPS_BUILD=no --build-arg UID
+    - name: Build Deps
+      run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
+                          --build-arg DAOS_BUILD=no --build-arg UID
+
 
   # Checkout a version of the cache, read the contents.  As there
   # doesn't seem to be a way to read but not save the cache then
@@ -41,8 +91,6 @@ jobs:
           key: daos-deadend
           restore-keys: daos-built-
 
-      - name: Check cache
-        run: cat built/date.txt
 
       - name: Clear cache
         run: rm -rf built
