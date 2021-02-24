@@ -18,7 +18,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: satackey/action-docker-layer-caching@v0.0.11
       with:
-        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct') }}
+        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}
     - name: Set UID
       run: echo UID=`id -u` >> $GITHUB_ENV
     - name: Build DAOS dependencies in image
@@ -52,7 +52,7 @@ jobs:
       id: cache-restore
       uses: satackey/action-docker-layer-caching@v0.0.11
       with:
-        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct') }}
+        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}
         restore-keys: docker-
         skip-save: true
     - name: Set UID
