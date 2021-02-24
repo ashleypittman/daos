@@ -19,5 +19,8 @@ jobs:
         path: built
         key: daos-built
 
+    - name: Check
+      run: find built
+
     - name: Compress
       run: mkdir built && tar -cvf built/out.tar utils
