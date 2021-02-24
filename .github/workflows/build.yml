@@ -48,6 +48,8 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: true
+    - name: Show image
+      run: docker image ls -a
     - name: Restore Cache
       id: cache-restore
       uses: satackey/action-docker-layer-caching@v0.0.11
@@ -55,6 +57,8 @@ jobs:
         key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}
         restore-keys: docker-
         skip-save: true
+    - name: Show image
+      run: docker image ls -a
     - name: Set UID
       run: echo UID=`id -u` >> $GITHUB_ENV
       # Now do the whole build in one go.  This should just build DAOS, but
