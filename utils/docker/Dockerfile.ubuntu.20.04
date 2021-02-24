@@ -51,7 +51,6 @@ ARG NOBUILD=no
 # root then run a chown command which is frustrating as the copy can take a few
 # seconds.
 WORKDIR /home/daos/pre
-RUN chown daos_server.daos_server
 COPY --chown=daos_server:daos_server SConstruct .
 COPY --chown=daos_server:daos_server utils/sl utils/sl
 COPY --chown=daos_server:daos_server utils/build.config utils/
