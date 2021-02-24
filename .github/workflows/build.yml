@@ -40,7 +40,7 @@ jobs:
           key: daos-deadend
           restore-keys: daos-built-
       - name: Backup
-        iif: steps.id.outouts.cache-hit != 'true'
+        if: steps.id.outouts.cache-hit != 'true'
         run: mkidr built && echo NO > built/date.txt
 
       - name: Check cache
