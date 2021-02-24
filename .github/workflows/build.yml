@@ -5,26 +5,6 @@ on: push
 
 jobs:
 
-  startup:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-
-    - name: Check
-      run: find built && rm -rf built && cat built/date.txt || true
-
-    - name: Compress
-      run: mkdir built && tar -cvf built/out.tar utils && date > built/date.txt
-
-    - name: Populate cache
-      uses: actions/cache@v2
-      with:
-        path: built
-        key: daos-built-${{ hashFiles('built/date.txt') }}
-
   # Build a base Docker image, and save it with a key based on the
   # hash.
   # If the source hasn't changed then this will be a cache-read, followed
@@ -45,11 +25,11 @@ jobs:
       run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
                           --build-arg DAOS_DEPS_BUILD=no --build-arg UID
     - name: Show image
-      run: docker image ps -a
+      run: docker image ls -a
     - name: Shrink images
       run: docker image prune --force --filter label=STOP=YES
     - name: Show image
-      run: docker image ps -a
+      run: docker image ls -a
 
   # Run the build.  Will pull the cache from either an exact match
   # of the files, or the most recent cache available.  Will not push
@@ -86,22 +66,3 @@ jobs:
                           --tag builder
     - name: Run something
       run: docker run builder ls
-
-  # Checkout a version of the cache, read the contents.  As there
-  # doesn't seem to be a way to read but not save the cache then
-  # set a common key, and empty the diretory.
-  check:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Fetch cache
-        id: cache-primes
-        uses: actions/cache@v2
-        with:
-          path: built
-          key: daos-deadend
-          restore-keys: daos-built-
-
-
-      - name: Clear cache
-        run: rm -rf built
