@@ -40,12 +40,15 @@ jobs:
         submodules: true
     - uses: satackey/action-docker-layer-caching@v0.0.11
       with:
-        key: docker-images-test-${{ hashFiles('utils', 'src', 'SConstruct') }}
+        key: docker-images-test-${{ hashFiles('utils', 'src', 'SConstruct', '.github') }}
     - name: Set UID
       run: echo UID=`id -u` >> $GITHUB_ENV
     - name: Build base Docker image
       run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
                           --build-arg DAOS_DEPS_BUILD=no --build-arg UID
+    - name: Build DAOS dependencies
+      run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
+                          --build-arg DAOS_BUILD=no --build-arg UID
 
   # Run the build.  Will pull the cache from either an exact match
   # of the files, or the most recent cache available.  Will not push
@@ -53,6 +56,10 @@ jobs:
   Build:
     runs-on: ubuntu-20.04
     needs: Prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -62,18 +69,19 @@ jobs:
       id: cache-restore
       uses: satackey/action-docker-layer-caching@v0.0.11
       with:
-        key: docker-images-test-${{ hashFiles('utils', 'src', 'SConstruct') }}-{hash}
+        key: docker-images-test-${{ hashFiles('utils', 'src', 'SConstruct', '.github') }}
         restore-keys: docker-images-test-
         skip-save: true
     - name: Set UID
       run: echo UID=`id -u` >> $GITHUB_ENV
-    - name: Check for new and rebuild.
-      if: steps.cache-restore.outputs.cache-hit != 'true'
+      # Now do the whole build in one go.  This should just build DAOS, but
+      # may build the whole stack if there are issues with the cache.
+      # Splitting this out into three builds however would take extra time
+      # on all builds.
+    - name: Build DAOS
       run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
-                          --build-arg DAOS_DEPS_BUILD=no --build-arg UID
-    - name: Build Deps
-      run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
-                          --build-arg DAOS_BUILD=no --build-arg UID
+                          --build-arg --build-arg UID
+                          --build-arg COMPILER=${{ matrix.compiler }}
 
 
   # Checkout a version of the cache, read the contents.  As there
