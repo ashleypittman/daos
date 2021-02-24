@@ -20,4 +20,4 @@ jobs:
         key: daos-built
 
     - name: Compress
-      run: mkdir build && tar -tvf built/out.tar utils
+      run: mkdir built && tar -tvf built/out.tar utils
