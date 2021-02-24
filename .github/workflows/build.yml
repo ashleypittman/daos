@@ -26,8 +26,14 @@ jobs:
                           --build-arg DAOS_DEPS_BUILD=no --build-arg UID
     - name: Show image
       run: docker image ls -a
-    - name: Remove container
-      run: docker container prune --force
+      #- name: Remove container
+      #run: docker container prune --force
+    - name: check
+      run: docker image ls --filter label=STOP=yes
+    - name: check not
+      run: docker image ls --filter label=STOP=no
+    - name: check all
+      run: docker image ls --filter label=STOP
     - name: Shrink images
       run: docker image prune --force --filter label=STOP=yes
     - name: Show image
