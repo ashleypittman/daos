@@ -8,25 +8,23 @@
 # Pull base image
 FROM ubuntu:20.04
 LABEL maintainer="daos@daos.groups.io"
-LABEL STOP=no
 
 # Install basic tools
-#RUN apt-get update &&							\
-#    DEBIAN_FRONTEND=noninteractive apt-get install -y			\
-#	build-essential scons python3-distro python3-distutils valgrind	\
-#	autoconf libtool-bin locales pkg-config pandoc clang cmake	\
-#	libcmocka-dev libnuma-dev patchelf libhwloc-dev libboost-dev	\
-#	uuid-dev libssl-dev fuse3 libfuse3-dev curl libjson-c-dev 	\
-#	liblz4-dev libibverbs-dev librdmacm-dev libaio-dev yasm		\
-#	python3-dev golang-go git libyaml-dev python3-tabulate		\
-#	python3-pyxattr openjdk-8-jdk maven libipmctl-dev 		\
-#	libcunit1-dev libopenmpi-dev numactl doxygen && 		\
-#    apt-get clean all
-#
+RUN apt-get update &&							\
+    DEBIAN_FRONTEND=noninteractive apt-get install -y			\
+	build-essential scons python3-distro python3-distutils valgrind	\
+	autoconf libtool-bin locales pkg-config pandoc clang cmake	\
+	libcmocka-dev libnuma-dev patchelf libhwloc-dev libboost-dev	\
+	uuid-dev libssl-dev fuse3 libfuse3-dev curl libjson-c-dev 	\
+	liblz4-dev libibverbs-dev librdmacm-dev libaio-dev yasm		\
+	python3-dev golang-go git libyaml-dev python3-tabulate		\
+	python3-pyxattr openjdk-8-jdk maven libipmctl-dev 		\
+	libcunit1-dev libopenmpi-dev numactl doxygen && 		\
+    apt-get clean all
 
 # hack the default shell to bash instead of dash
-#RUN rm /bin/sh && ln -s bash /bin/sh && locale-gen en_US.UTF-8 && \
-#    update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+RUN rm /bin/sh && ln -s bash /bin/sh && locale-gen en_US.UTF-8 && \
+    update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 
 ARG UID=1000
 
@@ -63,7 +61,6 @@ RUN ln -s utils/sl site_scons && [ "$DAOS_DEPS_BUILD" != "yes" ] || \
     /bin/rm -rf build *.gz)
 
 # Set a label.
-LABEL DEPS_BUILD=$DAOS_DEPS_BUILD
 LABEL STOP=yes
 
 WORKDIR /home/daos/daos/
