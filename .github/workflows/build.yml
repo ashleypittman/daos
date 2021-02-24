@@ -41,14 +41,15 @@ jobs:
         key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct') }}
     - name: Set UID
       run: echo UID=`id -u` >> $GITHUB_ENV
-      #    - name: Build base image
-      #run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
-      #                    --build-arg DAOS_DEPS_BUILD=no --build-arg UID
     - name: Build DAOS dependencies in image
       run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
-                          --build-arg DAOS_BUILD=no --build-arg UID
+                          --build-arg DAOS_DEPS_BUILD=no --build-arg UID
+    - name: Show image
+      run: docker image ps -a
     - name: Shrink images
-      run: docker image prune --force --filter label=DEPS_BUILD
+      run: docker image prune --force --filter label=STOP=YES
+    - name: Show image
+      run: docker image ps -a
 
   # Run the build.  Will pull the cache from either an exact match
   # of the files, or the most recent cache available.  Will not push
