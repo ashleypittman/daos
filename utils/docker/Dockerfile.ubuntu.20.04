@@ -68,7 +68,7 @@ USER daos_server:daos_server
 RUN ln -s utils/sl site_scons
 
 RUN [ "$DAOS_DEPS_BUILD" != "yes" ] || \
-    (scons --build-deps=yes install PREFIX=/opt/daos --deps-only && \
+    (scons --build-deps=yes -j 4 install PREFIX=/opt/daos --deps-only && \
     /bin/rm -rf build *.gz)
 
 WORKDIR /home/daos/daos/
