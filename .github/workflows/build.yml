@@ -41,7 +41,6 @@ jobs:
     - uses: satackey/action-docker-layer-caching@v0.0.11
       with:
         key: docker-images-test-${{ hashFiles('utils', 'src', 'SConstruct', '.github') }}
-        restore-keys: docker-images-test-
     - name: Set UID
       run: echo UID=`id -u` >> $GITHUB_ENV
     - name: Build base Docker image
@@ -81,7 +80,7 @@ jobs:
       # on all builds.
     - name: Build DAOS
       run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
-                          --build-arg --build-arg UID
+                          --build-arg UID
                           --build-arg COMPILER=${{ matrix.compiler }}
 
 
