@@ -20,7 +20,7 @@ jobs:
         key: daos-built
 
     - name: Check
-      run: find built
+      run: find built && rm -rf built && cat built/date.txt || true
 
     - name: Compress
-      run: mkdir built && tar -cvf built/out.tar utils
+      run: mkdir built && tar -cvf built/out.tar utils && date > built/date.txt
