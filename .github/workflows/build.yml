@@ -29,13 +29,13 @@ jobs:
       #- name: Remove container
       #run: docker container prune --force
     - name: check
-      run: docker image ls --filter label=STOP=yes
+      run: docker image ls -a --filter label=STOP=yes
     - name: check not
-      run: docker image ls --filter label=STOP=no
+      run: docker image ls -a --filter label=STOP=no
     - name: check all
-      run: docker image ls --filter label=STOP
+      run: docker image ls -a --filter label=STOP
     - name: Shrink images
-      run: docker image prune --force --filter label=STOP=yes
+      run: docker image prune --force --filter="label!=STOP=no"
     - name: Show image
       run: docker image ls -a
 
