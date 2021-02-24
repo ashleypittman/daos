@@ -21,10 +21,11 @@ LABEL maintainer="daos@daos.groups.io"
 #	python3-pyxattr openjdk-8-jdk maven libipmctl-dev 		\
 #	libcunit1-dev libopenmpi-dev numactl doxygen && 		\
 #    apt-get clean all
+#
 
 # hack the default shell to bash instead of dash
-RUN rm /bin/sh && ln -s bash /bin/sh && locale-gen en_US.UTF-8 && \
-    update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+#RUN rm /bin/sh && ln -s bash /bin/sh && locale-gen en_US.UTF-8 && \
+#    update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 
 ARG UID=1000
 
