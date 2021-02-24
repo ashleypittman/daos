@@ -68,7 +68,7 @@ jobs:
     - name: Set UID
       run: echo UID=`id -u` >> $GITHUB_ENV
     - name: Check for new and rebuild.
-      if: steps.cache-restore.outputs.cache-hit != 'true':
+      if: steps.cache-restore.outputs.cache-hit != 'true'
       run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
                           --build-arg DAOS_DEPS_BUILD=no --build-arg UID
     - name: Build Deps
