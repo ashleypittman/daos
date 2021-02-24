@@ -8,6 +8,7 @@
 # Pull base image
 FROM ubuntu:20.04
 LABEL maintainer="daos@daos.groups.io"
+LABEL STOP=no
 
 # Install basic tools
 #RUN apt-get update &&							\
