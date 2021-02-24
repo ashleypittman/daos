@@ -32,19 +32,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      name: Fetch cache
-      id: pull-cache
-      uses: actions/cache@v2
-      with:
-        path: built
-        key: daos-deadend
-        restore-keys: daos-built-
-      name: Backup
-      if: steps.id.outouts.cache-hit != 'true'
-      run: mkidr built && echo NO > built/date.txt
+      - name: Fetch cache
+        id: pull-cache
+        uses: actions/cache@v2
+        with:
+          path: built
+          key: daos-deadend
+          restore-keys: daos-built-
+      - name: Backup
+        iif: steps.id.outouts.cache-hit != 'true'
+        run: mkidr built && echo NO > built/date.txt
 
-      name: Check cache
-      run: cat built/date.txt
+      - name: Check cache
+        run: cat built/date.txt
 
-      name: Clear cache
-      run: rm -rf built
+      - name: Clear cache
+        run: rm -rf built
