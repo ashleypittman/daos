@@ -35,7 +35,7 @@ jobs:
     - name: check all
       run: docker image ls -a --filter label=STOP
     - name: Get images
-      run: docker images -a --filter label=STOP=yes --quiet | xargs docker rmi
+      run: docker images -a --filter label=STOP=yes --quiet | xargs docker rmi --no-prune
       #- name: Shrink images
       #run: docker image prune --force -a --filter="label=STOP=yes"
     - name: Show image
