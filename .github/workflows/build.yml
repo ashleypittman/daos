@@ -40,7 +40,7 @@ jobs:
           key: daos-deadend
           restore-keys: daos-built-
       - name: Backup
-        if: steps.id.outouts.cache-hit != 'true'
+        if: steps.id.pull-cache.cache-hit != 'true'
         run: mkdir built && echo NO > built/date.txt
 
       - name: Check cache
