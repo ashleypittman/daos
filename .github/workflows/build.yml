@@ -41,7 +41,7 @@ jobs:
           restore-keys: daos-built-
       - name: Backup
         if: steps.id.outouts.cache-hit != 'true'
-        run: mkidr built && echo NO > built/date.txt
+        run: mkdir built && echo NO > built/date.txt
 
       - name: Check cache
         run: cat built/date.txt
