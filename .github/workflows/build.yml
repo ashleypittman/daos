@@ -13,14 +13,38 @@ jobs:
       with:
         submodules: true
 
-    - name: Populate cache
-      uses: actions/cache@v2
-      with:
-        path: built
-        key: daos-built
-
     - name: Check
       run: find built && rm -rf built && cat built/date.txt || true
 
     - name: Compress
       run: mkdir built && tar -cvf built/out.tar utils && date > built/date.txt
+
+    - name: Populate cache
+      uses: actions/cache@v2
+      with:
+        path: built
+        key: daos-built-${{ hashFiles('built/date.txt') }}
+
+  # Checkout a version of the cache, read the contents.  As there
+  # doesn't seem to be a way to read but not save the cache then
+  # set a common key, and empty the diretory.
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      name: Fetch cache
+      id: pull-cache
+      uses: actions/cache@v2
+      with:
+        path: built
+        key: daos-deadend
+        restore-keys: daos-built-
+      name: Backup
+      if: steps.id.outouts.cache-hit != 'true'
+      run: mkidr built && echo NO > built/date.txt
+
+      name: Check cache
+      run: cat built/date.txt
+
+      name: Clear cache
+      run: rm -rf built
