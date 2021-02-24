@@ -40,7 +40,7 @@ jobs:
         submodules: true
     - uses: satackey/action-docker-layer-caching@v0.0.11
       with:
-        key: docker-images-test-${{ hashFiles('utils', 'src', 'SConstruct', '.github') }}
+        key: docker-images-test-${{ hashFiles('utils', 'src', 'SConstruct') }}
     - name: Set UID
       run: echo UID=`id -u` >> $GITHUB_ENV
     - name: Build base Docker image
@@ -69,7 +69,7 @@ jobs:
       id: cache-restore
       uses: satackey/action-docker-layer-caching@v0.0.11
       with:
-        key: docker-images-test-${{ hashFiles('utils', 'src', 'SConstruct', '.github') }}
+        key: docker-images-test-${{ hashFiles('utils', 'src', 'SConstruct') }}
         restore-keys: docker-images-test-
         skip-save: true
     - name: Set UID
