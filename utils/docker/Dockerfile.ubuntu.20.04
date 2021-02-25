@@ -43,7 +43,6 @@ RUN mkdir -p /opt/daos /mnt/daos /var/run/daos_server /var/run/daos_agent /home/
 # ease-of-use for users, however in CI everything is turned off and then
 # selectively enabled.  Turning off any step disables all future steps.
 ARG DAOS_DEPS_BUILD=yes
-ARG DAOS_JAVA_BUILD=$DAOS_BUILD
 # Legacy, NOBUILD should be set to any string to disable all three.
 ARG NOBUILD=no
 
@@ -101,6 +100,8 @@ RUN echo -e "<settings>\n\
                 </mirror>\n\
         </mirrors>\n\
 </settings>" > /home/daos/.m2/settings.xml
+
+ARG DAOS_JAVA_BUILD=$DAOS_BUILD
 
 RUN [ "$DAOS_JAVA_BUILD" != "yes" ] || \
     mvn clean install -T 1C -DskipITs -Dgpg.skip -Ddaos.install.path=/opt/daos

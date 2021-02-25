@@ -23,23 +23,9 @@ jobs:
       run: echo UID=`id -u` >> $GITHUB_ENV
     - name: Build DAOS dependencies in image
       run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
-                          --build-arg DAOS_DEPS_BUILD=no --build-arg UID
-    - name: Show image
-      run: docker image ls -a
-      #- name: Remove container
-      #run: docker container prune --force
-    - name: check
-      run: docker image ls -a --filter label=STOP=yes
-    - name: check not
-      run: docker image ls -a --filter label=STOP=no
-    - name: check all
-      run: docker image ls -a --filter label=STOP
+                          --build-arg DAOS_BUILD=no --build-arg UID
     - name: Get images
       run: docker images -a --filter label=STOP=yes --quiet | xargs docker rmi --no-prune
-      #- name: Shrink images
-      #run: docker image prune --force -a --filter="label=STOP=yes"
-    - name: Show image
-      run: docker image ls -a
 
   # Run the build.  Will pull the cache from either an exact match
   # of the files, or the most recent cache available.  Will not push
@@ -56,8 +42,6 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: true
-    - name: Show image
-      run: docker image ls -a
     - name: Restore Cache
       id: cache-restore
       uses: satackey/action-docker-layer-caching@v0.0.11
@@ -65,8 +49,6 @@ jobs:
         key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}
         restore-keys: docker-
         skip-save: true
-    - name: Show image
-      run: docker image ls -a
     - name: Set UID
       run: echo UID=`id -u` >> $GITHUB_ENV
       # Now do the whole build in one go.  This should just build DAOS, but
@@ -78,5 +60,3 @@ jobs:
                           --build-arg UID
                           --build-arg COMPILER=${{ matrix.compiler }}
                           --tag builder
-    - name: Run something
-      run: docker run builder ls
