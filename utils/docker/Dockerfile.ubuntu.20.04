@@ -85,7 +85,8 @@ ARG CACHEBUST
 RUN apt-get update && apt-get -y upgrade && apt-get clean all
 USER daos_server:daos_server
 
-COPY --chown=daos_server:daos_server utils/run_in_ga.sh utils/
+# Set a label.
+LABEL STOP=yes
 
 WORKDIR /home/daos/daos/
 COPY VERSION LICENSE ftest.sh SConstruct ./
@@ -137,6 +138,3 @@ WORKDIR /home/daos
 
 # Remove local copy
 #RUN rm -rf /home/daos/*
-USER root:root
-
-USER root:root

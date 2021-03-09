@@ -1,0 +1,35 @@
+
+name: Setup cache
+
+on:
+  push:
+    branches:
+      - github-actions-cache-test
+
+jobs:
+
+  # Build a base Docker image, and save it with a key based on the
+  # hash.
+  # If the source hasn't changed then this will be a cache-read, followed
+  # by a cache-write which will fail as the cache exists, but the read will
+  # put it to the front of the LRU queue.
+  # If the source has changed then the cache-read will fail, a new build will
+  # be performed and saved to the cache with a new key.
+  Prepare:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - uses: satackey/action-docker-layer-caching@v0.0.11
+      with:
+        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}
+    - name: Set UID
+      run: echo UID=`id -u` >> $GITHUB_ENV
+    - name: Prepare base image in Docker
+      run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
+                          --build-arg DAOS_DEPS_BUILD=no --build-arg UID
+    - name: Build dependencies in Docker
+      run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
+                          --build-arg DAOS_BUILD=no
+                          --build-arg UID
+    - name: Prune images not required for build.
+      run: docker images -a --filter label=STOP=yes --quiet | xargs docker rmi --no-prune

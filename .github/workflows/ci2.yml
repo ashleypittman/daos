@@ -41,7 +41,6 @@ jobs:
                           --build-arg UID
   Build2:
     name: Run DAOS tests
-    needs: Prepare
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -61,12 +60,12 @@ jobs:
     - uses: satackey/action-docker-layer-caching@v0.0.11
       continue-on-error: true
       with:
-        key: dos-${{ env.CACHE_KEY }}-${{ matrix.distro }}-{hash}
-        restore-keys: dos-${{ env.CACHE_KEY }}-${{ matrix.distro }}-
+        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}
+        restore-keys: docker-
         skip-save: true
     - name: Update dependencies in image.
       run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
-                          --build-arg DAOS_BUILD=no --build-arg DEPS_JOBS=10
+                          --build-arg DAOS_BUILD=no
                           --build-arg UID -t build-image
     - name: Run inside
-      run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./utils/run_in_ga.sh
+      run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./daos/utils/run_in_ga.sh
