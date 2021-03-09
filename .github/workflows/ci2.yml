@@ -9,36 +9,6 @@ on:
 
 jobs:
 
-  # Prepare docker images containing base software, plus deps.
-  Prepare:
-    name: Prepare images
-    runs-on: ubuntu-20.04
-    strategy:
-      fail-fast: false
-      matrix:
-        distro: [ubuntu.20.04]
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-      with:
-        submodules: true
-    - name: Set cache key
-      run: echo "CACHE_KEY=$(date +%j)" >> $GITHUB_ENV
-    - name: Set UID
-      run: echo UID=`id -u` >> $GITHUB_ENV
-    # https://github.com/marketplace/actions/docker-layer-caching
-    - uses: satackey/action-docker-layer-caching@v0.0.11
-      continue-on-error: true
-      with:
-        key: dos-${{ env.CACHE_KEY }}-${{ matrix.distro }}-{hash}
-        restore-keys: dos4-${{ env.CACHE_KEY }}-${{ matrix.distro }}-
-    - name: Build base Docker image
-      run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
-                          --build-arg DAOS_DEPS_BUILD=no --build-arg UID
-    - name: Build deps in Docker image
-      run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
-                          --build-arg DAOS_BUILD=no --build-arg DEPS_JOBS=10
-                          --build-arg UID
   Build2:
     name: Run DAOS tests
     runs-on: ubuntu-20.04
