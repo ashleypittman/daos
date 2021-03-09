@@ -135,7 +135,7 @@ obj_rw_reply(crt_rpc_t *rpc, int status, uint64_t epoch,
 
 	D_DEBUG(DB_IO, "rpc %p opc %d send reply, pmv %d, epoch "DF_U64
 		", status %d\n", rpc, opc_get(rpc->cr_opc),
-		ioc->ioc_map_ver, epoch, status);
+		ioc->ioc_map_ver, orwo->orw_epoch, status);
 
 	if (!ioc->ioc_lost_reply) {
 		rc = crt_reply_send(rpc);
@@ -1599,23 +1599,20 @@ obj_ioc_init(uuid_t pool_uuid, uuid_t coh_uuid, uuid_t cont_uuid, int opc,
 		D_ERROR("Stale container handle "DF_UUID" != "DF_UUID"\n",
 			DP_UUID(cont_uuid), DP_UUID(coh->sch_uuid));
 		D_GOTO(failed, rc = -DER_NONEXIST);
+	} else {
+		/**
+		 * The server handle is a dummy and never attached by
+		 * a real container
+		 */
+		D_DEBUG(DB_TRACE, DF_UUID"/%p is server cont hdl\n",
+			DP_UUID(coh_uuid), coh);
 	}
 
-	if (!is_container_from_srv(pool_uuid, coh_uuid)) {
-		D_ERROR("Empty container "DF_UUID" (ref=%d) handle?\n",
-			DP_UUID(cont_uuid), coh->sch_ref);
-		D_GOTO(failed, rc = -DER_NO_HDL);
-	}
-
-	/* rebuild handle is a dummy and never attached by a real container */
 	if (DAOS_FAIL_CHECK(DAOS_REBUILD_NO_HDL))
 		D_GOTO(failed, rc = -DER_NO_HDL);
 
 	if (DAOS_FAIL_CHECK(DAOS_REBUILD_STALE_POOL))
 		D_GOTO(failed, rc = -DER_STALE);
-
-	D_DEBUG(DB_TRACE, DF_UUID"/%p is rebuild cont hdl\n",
-		DP_UUID(coh_uuid), coh);
 
 	/* load VOS container on demand for rebuild */
 	rc = ds_cont_child_lookup(pool_uuid, cont_uuid, &coc);
@@ -1738,7 +1735,7 @@ obj_ioc_end(struct obj_io_context *ioc, int err)
 					ioc->ioc_start_time) / 1000,
 				       NULL);
 		d_tm_decrement_gauge(&tls->ot_op_active[opc], 1, NULL);
-		d_tm_increment_counter(&tls->ot_op_total[opc], NULL);
+		d_tm_increment_counter(&tls->ot_op_total[opc], 1, NULL);
 	}
 	obj_ioc_fini(ioc);
 }
@@ -2266,7 +2263,7 @@ again:
 		daos_epoch_t	e = 0;
 		struct obj_tls  *tls = obj_tls_get();
 
-		d_tm_increment_counter(&tls->ot_update_resent, NULL);
+		d_tm_increment_counter(&tls->ot_update_resent, 1, NULL);
 
 		rc = dtx_handle_resend(ioc.ioc_vos_coh, &orw->orw_dti,
 				       &e, &version);
@@ -2373,7 +2370,8 @@ again:
 			orw->orw_epoch = crt_hlc_get();
 			orw->orw_flags &= ~ORF_RESEND;
 			flags = 0;
-			d_tm_increment_counter(&tls->ot_update_restart, NULL);
+			d_tm_increment_counter(&tls->ot_update_restart, 1,
+					       NULL);
 			goto again;
 		}
 
@@ -4206,7 +4204,7 @@ ds_obj_dtx_leader_ult(void *arg)
 	rc = dtx_leader_end(&dlh, dca->dca_ioc->ioc_coc, rc);
 
 out:
-	D_CDEBUG(rc != 0 && rc != DER_INPROGRESS && rc != -DER_TX_RESTART,
+	D_CDEBUG(rc != 0 && rc != -DER_INPROGRESS && rc != -DER_TX_RESTART,
 		 DLOG_ERR, DB_IO,
 		 "Handled DTX "DF_DTI" on leader, idx %u: "DF_RC"\n",
 		 DP_DTI(&dcsh->dcsh_xid), dca->dca_idx, DP_RC(rc));

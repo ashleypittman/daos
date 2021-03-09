@@ -471,8 +471,8 @@ dss_crt_event_cb(d_rank_t rank, enum crt_event_source src,
 		return;
 	}
 
-	d_tm_increment_counter(&dead_rank_cnt, "events/dead_rank_cnt", NULL);
-	d_tm_record_timestamp(&last_ts, "events/last_event_ts", NULL);
+	d_tm_increment_counter(&dead_rank_cnt, 1, "events/dead_rank_cnt");
+	d_tm_record_timestamp(&last_ts, "events/last_event_ts");
 
 	rc = ds_notify_swim_rank_dead(rank);
 	if (rc)
@@ -500,7 +500,7 @@ server_init(int argc, char *argv[])
 		goto exit_debug_init;
 
 	/** Report timestamp when engine was started */
-	d_tm_record_timestamp(NULL, "started_at", NULL);
+	d_tm_record_timestamp(NULL, "started_at");
 
 	rc = register_dbtree_classes();
 	if (rc != 0)
@@ -640,10 +640,10 @@ server_init(int argc, char *argv[])
 	D_INFO("Service fully up\n");
 
 	/** Report timestamp when engine was open for business */
-	d_tm_record_timestamp(NULL, "servicing_at", NULL);
+	d_tm_record_timestamp(NULL, "servicing_at");
 
 	/** Report rank */
-	d_tm_set_gauge(NULL, dss_self_rank(), "rank", NULL);
+	d_tm_increment_counter(NULL, dss_self_rank(), "rank");
 
 	D_PRINT("DAOS I/O Engine (v%s) process %u started on rank %u "
 		"with %u target, %d helper XS, firstcore %d, host %s.\n",
@@ -697,7 +697,6 @@ server_fini(bool force)
 	D_INFO("server_init_state_fini() done\n");
 	dss_srv_fini(force);
 	D_INFO("dss_srv_fini() done\n");
-	D_INFO("daos_fini() or pl_fini() done\n");
 	dss_module_unload_all();
 	D_INFO("dss_module_unload_all() done\n");
 	ds_iv_fini();
@@ -712,6 +711,7 @@ server_fini(bool force)
 		pl_fini();
 		daos_hhash_fini();
 	}
+	D_INFO("daos_fini() or pl_fini() done\n");
 	crt_finalize();
 	D_INFO("crt_finalize() done\n");
 	dss_module_fini(force);
