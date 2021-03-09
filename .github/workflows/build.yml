@@ -11,7 +11,6 @@ jobs:
   # See prepare.yml for code to populate cache.
   Build:
     runs-on: ubuntu-20.04
-    needs: Prepare
     strategy:
       fail-fast: false
       matrix:
