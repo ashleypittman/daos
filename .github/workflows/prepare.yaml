@@ -1,9 +1,10 @@
 
 name: Setup cache
 
-on: push
-  branches:
-    - github-actions-cache-test
+on:
+  push:
+    branches:
+      - github-actions-cache-test
 
 jobs:
 
