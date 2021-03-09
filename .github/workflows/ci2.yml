@@ -22,15 +22,13 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: true
-    - name: Set cache key
-      run: echo "CACHE_KEY=$(date +%j)" >> $GITHUB_ENV
     - name: Set UID
       run: echo UID=`id -u` >> $GITHUB_ENV
     # https://github.com/marketplace/actions/docker-layer-caching
     - uses: satackey/action-docker-layer-caching@v0.0.11
       continue-on-error: true
       with:
-        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}
+        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}-{hash}
         restore-keys: docker-
         skip-save: true
     - name: Update dependencies in image.
