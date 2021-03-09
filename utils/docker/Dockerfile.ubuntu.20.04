@@ -20,23 +20,23 @@ RUN apt-get update &&							\
 	python3-dev golang-go git libyaml-dev python3-tabulate		\
 	python3-pyxattr openjdk-8-jdk maven libipmctl-dev 		\
 	libcunit1-dev libopenmpi-dev numactl doxygen && 		\
-    apt-get clean all && locale-gen en_US.UTF-8
+    apt-get clean all
 
 # hack the default shell to bash instead of dash
-#RUN rm /bin/sh && ln -s bash /bin/sh
+RUN rm /bin/sh && ln -s bash /bin/sh
 
-#RUN locale-gen en_US.UTF-8
+RUN locale-gen en_US.UTF-8
 
 # use Java 8 instead of default Java 11
-#RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 
 ARG UID=1000
 
 # Add DAOS users
 RUN useradd --uid $UID --user-group --create-home --shell /bin/bash --home /home/daos daos_server && \
     useradd --user-group --create-home --shell /bin/bash daos_agent
-#RUN echo "daos_server:daos_server" | chpasswd
-#RUN echo "daos_agent:daos_agent" | chpasswd
+RUN echo "daos_server:daos_server" | chpasswd
+RUN echo "daos_agent:daos_agent" | chpasswd
 
 # Create directory for DAOS backend storage
 RUN mkdir -p /opt/daos && chown -R daos_server.daos_server /opt/daos && \
