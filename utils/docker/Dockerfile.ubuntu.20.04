@@ -55,11 +55,12 @@ ARG DEPS_JOBS=1
 # root then run a chown command which is frustrating as the copy can take a few
 # seconds.
 WORKDIR /home/daos/pre
-COPY --chown=daos_server:daos_server SConstruct .
-COPY --chown=daos_server:daos_server utils/sl utils/sl
-COPY --chown=daos_server:daos_server utils/build.config utils/
+COPY SConstruct .
+COPY utils/sl utils/sl
+COPY utils/build.config utils/
+RUN ln -s utils/sl site_scons
 
-RUN ln -s utils/sl site_scons && [ "$DAOS_DEPS_BUILD" != "yes" ] || \
+RUN [ "$DAOS_DEPS_BUILD" != "yes" ] || \
     (scons --build-deps=yes --jobs $DEPS_JOBS PREFIX=/opt/daos --deps-only BUILD_TYPE=debug && \
     /bin/rm -rf build *.gz)
 
@@ -71,20 +72,17 @@ COPY --chown=daos_server:daos_server utils utils
 COPY --chown=daos_server:daos_server src src
 RUN ln -s utils/sl site_scons
 
-#ARG DAOS_BUILD=$DAOS_DEPS_BUILD
-#ARG JOBS=$DEPS_JOBS
-#ARG COMPILER=gcc
+ARG DAOS_BUILD=$DAOS_DEPS_BUILD
+ARG JOBS=$DEPS_JOBS
+ARG COMPILER=gcc
 
 # Build DAOS
 # BUILD_TYPE=debug does not work.
-#RUN [ "$DAOS_BUILD" != "yes" ] || \
-#    (scons --jobs $JOBS install PREFIX=/opt/daos COMPILER=$COMPILER TARGET_TYPE=debug BUILD_TYPE=dev && \
-#    /bin/rm -rf build && \
-#    cp -r utils/config/examples /opt/daos)
+RUN [ "$DAOS_BUILD" != "yes" ] || \
+    (scons --jobs $JOBS install PREFIX=/opt/daos COMPILER=$COMPILER TARGET_TYPE=debug BUILD_TYPE=dev && \
+    /bin/rm -rf build && \
+    cp -r utils/config/examples /opt/daos)
 
-#USER root:root
-#RUN [ "$DAOS_BUILD" != "yes" ] || (. utils/sl/setup_local.sh && ./utils/setup_daos_admin.sh)
-#USER daos_server:daos_server
 
 # Set environment variables
 ENV LD_LIBRARY_PATH=/opt/daos/lib:/opt/daos/lib64:/opt/daos/bin/../lib64/daos_srv/../../prereq/debug/spdk/lib/:$LD_LIBRARY_PATH

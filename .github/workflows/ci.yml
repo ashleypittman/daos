@@ -1,4 +1,4 @@
-name: DAOS Build.
+name: Workflow
 
 on:
    push:
@@ -9,64 +9,31 @@ on:
 
 jobs:
 
-  # Prepare docker images containing base software, plus deps.
-  Prepare:
-    name: Prepare images
+  Build:
+    name: Build
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        distro: [ubuntu.20.04]
+        distro: [centos.7, centos.8, leap.15, ubuntu.20.04]
+        compiler: [gcc, clang]
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
         submodules: true
-    - name: Set cache key
-      run: echo "CACHE_KEY=$(date +%j)" >> $GITHUB_ENV
-    - name: Set UID
-      run: echo UID=`id -u` >> $GITHUB_ENV
-    # https://github.com/marketplace/actions/docker-layer-caching
-    - uses: satackey/action-docker-layer-caching@v0.0.11
-      continue-on-error: true
-      with:
-        key: dos-${{ env.CACHE_KEY }}-${{ matrix.distro }}-{hash}
-        restore-keys: dos4-${{ env.CACHE_KEY }}-${{ matrix.distro }}-
-    - name: Build base Docker image
+    - name: Build ${{ matrix.distro }} Docker image with ${{ matrix.compiler }}
       run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
-                          --build-arg DAOS_DEPS_BUILD=no --build-arg UID
-    - name: Build deps in Docker image
-      run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
-                          --build-arg DAOS_BUILD=no --build-arg DEPS_JOBS=10
-                          --build-arg UID
-  Build2:
-    name: Run DAOS tests
-    needs: Prepare
+                          --build-arg COMPILER=${{ matrix.compiler }}
+                          -t ${{ matrix.distro }}/${{ matrix.compiler }}/daos:${{ github.sha }}
+  Spelling:
     runs-on: ubuntu-20.04
-    strategy:
-      fail-fast: false
-      matrix:
-        distro: [ubuntu.20.04]
-        compiler: [clang]
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+    - name: Run check
+      uses: codespell-project/actions-codespell@master
       with:
-        submodules: true
-    - name: Set cache key
-      run: echo "CACHE_KEY=$(date +%j)" >> $GITHUB_ENV
-    - name: Set UID
-      run: echo UID=`id -u` >> $GITHUB_ENV
-    # https://github.com/marketplace/actions/docker-layer-caching
-    - uses: satackey/action-docker-layer-caching@v0.0.11
-      continue-on-error: true
-      with:
-        key: dos-${{ env.CACHE_KEY }}-${{ matrix.distro }}-{hash}
-        restore-keys: dos-${{ env.CACHE_KEY }}-${{ matrix.distro }}-
-        skip-save: true
-    - name: Update dependencies in image.
-      run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
-                          --build-arg DAOS_BUILD=no --build-arg DEPS_JOBS=10
-                          --build-arg UID -t build-image
-    - name: Run inside
-      run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./utils/run_in_ga.sh
+        skip: ./src/control/vendor,./.git
+        ignore_words_file: ci/codespell.ignores
+        builtin: clear,rare,informal,names,en-GB_to_en-US

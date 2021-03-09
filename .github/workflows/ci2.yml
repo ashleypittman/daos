@@ -1,4 +1,4 @@
-name: DAOS Build.
+name: DAOS test Build.
 
 on:
    push:
