@@ -24,7 +24,7 @@ jobs:
     - name: Build DAOS dependencies in image
       run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
                           --build-arg DAOS_BUILD=no --build-arg UID
-    - name: Get images
+    - name: Prune images not required for build.
       run: docker images -a --filter label=STOP=yes --quiet | xargs docker rmi --no-prune
 
   # Run the build.  Will pull the cache from either an exact match
@@ -57,6 +57,6 @@ jobs:
       # on all builds.
     - name: Build DAOS
       run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
-                          --build-arg UID
+                          --build-arg UID --build-arg JOBS=8
                           --build-arg COMPILER=${{ matrix.compiler }}
                           --tag builder
