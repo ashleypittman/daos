@@ -25,10 +25,10 @@ jobs:
     - name: Set UID
       run: echo UID=`id -u` >> $GITHUB_ENV
     - name: Prepare base image in Docker
-      run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
+      run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
                           --build-arg DAOS_DEPS_BUILD=no --build-arg UID
     - name: Build dependencies in Docker
-      run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
+      run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
                           --build-arg DAOS_BUILD=no
                           --build-arg UID
     - name: Prune images not required for build.

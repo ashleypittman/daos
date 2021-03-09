@@ -4,7 +4,7 @@ set -e
 cd daos
 
 echo ::group::Build
-scons --jobs 10 PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=debug BUILD_TYPE=dev
+scons --jobs 8 PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=release BUILD_TYPE=dev
 echo ::endgroup::
 
 cat daos.conf
