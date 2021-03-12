@@ -19,6 +19,9 @@ echo ::group::Setting up daos_admin
 echo ::endgroup::
 
 echo ::group::Key Value test
+ldd /opt/daos/bin/daos_server
+echo $LD_LIBRARY_PATH
+ls /opt/daos/bin/../lib64/daos_srv/../../prereq/debug/spdk/lib/
 ./utils/node_local_test.py --no-root kv
 echo ::endgroup::
 
