@@ -28,7 +28,7 @@ jobs:
     - uses: satackey/action-docker-layer-caching@v0.0.11
       continue-on-error: true
       with:
-        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}-{hash}
+        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}
         restore-keys: docker-
         skip-save: true
     - name: Update dependencies in image.
