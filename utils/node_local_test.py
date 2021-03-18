@@ -341,6 +341,8 @@ class DaosServer():
         self.mb = mb
 
     def __del__(self):
+        if self._agent:
+            self._stop_agent()
         if self.running:
             self.stop(None)
         if os.path.exists(self.server_log.name):
@@ -490,12 +492,16 @@ class DaosServer():
             self._check_timing("start", start, max_start_time)
         print('Server started in {:.2f} seconds'.format(time.time() - start))
 
+    def _stop_agent(self):
+        self._agent.send_signal(signal.SIGINT)
+        ret = self._agent.wait(timeout=5)
+        print('rc from agent is {}'.format(ret))
+        self._agent = None
+
     def stop(self, wf):
         """Stop a previously started DAOS server"""
         if self._agent:
-            self._agent.send_signal(signal.SIGINT)
-            ret = self._agent.wait(timeout=5)
-            print('rc from agent is {}'.format(ret))
+            self._stop_agent()
 
         if not self._sp:
             return

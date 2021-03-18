@@ -25,7 +25,7 @@ RUN apt-get -y update &&						\
 	uuid-dev libssl-dev fuse3 libfuse3-dev curl libjson-c-dev 	\
 	liblz4-dev libibverbs-dev librdmacm-dev libaio-dev yasm		\
 	python3-dev golang-go git libyaml-dev python3-tabulate		\
-	python3-pyxattr openjdk-8-jdk maven libipmctl-dev 		\
+	python3-pyxattr openjdk-8-jdk maven libipmctl-dev pciutils kmod	\
 	libcunit1-dev libopenmpi-dev numactl doxygen libunwind-dev && 	\
     apt-get clean all
 
