@@ -39,7 +39,7 @@ jobs:
 
   Build:
     name: Run DAOS tests
-    depends: Prepare
+    needs: Prepare
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
