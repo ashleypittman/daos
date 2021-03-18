@@ -72,14 +72,14 @@ def build_client_libs_shared(env):
     env.InstallVersionedLib(os.path.join("$PREFIX", 'lib64'), il_lib)
     dfuse_lib = daos_build.library(ilenv, 'common/libdfuse', common)
 
-    #gen_script = daos_build.program(ilenv, 'il/gen_script', ['il/gen_script.c'],
-    #                                LIBS=[])
-    #script = ilenv.Command('il/check_ioil_syms', gen_script,
-    #                       "$SOURCE -s $TARGET")
-    #env.Install('$PREFIX/lib/daos/TESTING/scripts', script)
-    #script = ilenv.Command('il/ioil-ld-opts', gen_script,
-    #                       '$SOURCE -l $TARGET')
-    #env.Install('$PREFIX/share/daos', script)
+    gen_script = daos_build.program(ilenv, 'il/gen_script', ['il/gen_script.c'],
+                                    LIBS=[])
+    script = ilenv.Command('il/check_ioil_syms', gen_script,
+                           "$SOURCE -s $TARGET")
+    env.Install('$PREFIX/lib/daos/TESTING/scripts', script)
+    script = ilenv.Command('il/ioil-ld-opts', gen_script,
+                           '$SOURCE -l $TARGET')
+    env.Install('$PREFIX/share/daos', script)
     env.InstallVersionedLib(os.path.join("$PREFIX", 'lib64'), dfuse_lib)
 
     return dfuse_lib + il_lib
