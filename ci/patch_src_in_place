@@ -1,23 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 set -x
 
-CHANGE_TARGET=$GITHUB_BASE_REF
-
-grep -r a4395cdf08fb60daf629d2bfd407be961f28a4b5 .git
-find .git
-git log
-git remote -v
-
-git diff --name-only $GITHUB_BASE_REF...
-
-git fetch
-
-git diff ad82b0a7b8e3cbdbda7427d524493f8bfd35bcf0 a4395cdf08fb60daf629d2bfd407be961f28a4b5
-git diff --name-only ad82b0a7b8e3cbdbda7427d524493f8bfd35bcf0 a4395cdf08fb60daf629d2bfd407be961f28a4b5
-
 # shellcheck disable=SC2046,SC2035
-codespell -w --ignore-words ci/codespell.ignores --builtin clear,rare,informal,names,en-GB_to_en-US --skip *.png,*.PNG,*.pyc,src/rdb/raft/*,./src/control/vendor/*,RSA.golden,utils/rpms/* $(git diff --name-only $GITHUB_BASE_REF...)
+codespell -w --ignore-words ci/codespell.ignores --builtin clear,rare,informal,names,en-GB_to_en-US --skip *.png,*.PNG,*.pyc,src/rdb/raft/*,src/control/vendor/*,RSA.golden,utils/rpms/* $(git diff --name-only origin/"$CHANGE_TARGET"...)
 
 # The return code of codespell is the number of words it could not correct
 # because of multiple options.  We could report on these but they're rare
@@ -39,7 +25,7 @@ fi
 
 if [ -x $CP ]
 then
-    for FILE in $(git diff --name-only $GITHUB_BASE_REF... | grep "^src" | grep -v -e src/control/vendor -e .go\$ -e pb-c -e debug_setup.h)
+    for FILE in $(git diff --name-only origin/"$CHANGE_TARGET"... | grep "^src" | grep -v -e src/control/vendor -e .go\$ -e pb-c -e debug_setup.h)
     do
 	ignore="$def_ignore"
 	if grep -lq CRT_RPC_DECLARE "$FILE"; then

@@ -4,7 +4,7 @@ set -e
 cd daos
 
 echo ::group::Build
-scons --jobs 10 PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=release BUILD_TYPE=dev
+scons --jobs 10 PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=release BUILD_TYPE=debug
 echo ::endgroup::
 
 cat daos.conf
@@ -19,6 +19,7 @@ echo ::group::Setting up daos_admin
 echo ::endgroup::
 
 echo ::group::Key Value test
+export LD_LIBRARY_PATH=/opt/daos/lib:/opt/daos/lib64:/opt/daos/bin/../lib64/daos_srv/../../prereq/release/spdk/lib/:$LD_LIBRARY_PATH
 ./utils/node_local_test.py --no-root kv
 echo ::endgroup::
 
