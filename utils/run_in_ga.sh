@@ -24,9 +24,6 @@ echo $LD_LIBRARY_PATH
 ls /opt/daos/bin/../lib64/daos_srv/../../prereq/release/spdk/lib/
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/daos/bin/../lib64/daos_srv/../../prereq/release/spdk/lib/
 ldd /opt/daos/bin/daos_server
-ifconfig -a || true
-apt-get-update
-apt-get -y install syslog-ng
 ./utils/node_local_test.py --no-root kv
 echo ::endgroup::
 

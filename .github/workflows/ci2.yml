@@ -28,12 +28,13 @@ jobs:
     - uses: satackey/action-docker-layer-caching@v0.0.11
       continue-on-error: true
       with:
-        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}
+        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}-{hash}
         restore-keys: docker-
         skip-save: true
     - name: Update dependencies in image.
       run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
                           --build-arg DAOS_BUILD=no
+                          --build-arg DEPS_JOB=10
                           --build-arg UID -t build-image
     - name: Run inside
       run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./daos/utils/run_in_ga.sh

@@ -21,15 +21,17 @@ jobs:
     - uses: actions/checkout@v2
     - uses: satackey/action-docker-layer-caching@v0.0.11
       with:
-        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}
+        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}-{hash}
     - name: Set UID
       run: echo UID=`id -u` >> $GITHUB_ENV
     - name: Prepare base image in Docker
       run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
                           --build-arg DAOS_DEPS_BUILD=no --build-arg UID
+                          --build-arg DEPS_JOB=10
     - name: Build dependencies in Docker
       run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
                           --build-arg DAOS_BUILD=no
                           --build-arg UID
+                          --build-arg DEPS_JOB=10
     - name: Prune images not required for build.
-      run: docker images -a --filter label=STOP=yes --quiet | xargs docker rmi --no-prune
+      run: docker images -a --filter label=DAOS=true --quiet | xargs docker rmi --no-prune

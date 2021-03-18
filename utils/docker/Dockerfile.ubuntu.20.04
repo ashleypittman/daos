@@ -26,7 +26,8 @@ RUN apt-get -y update &&						\
 	liblz4-dev libibverbs-dev librdmacm-dev libaio-dev yasm		\
 	python3-dev golang-go git libyaml-dev python3-tabulate		\
 	python3-pyxattr openjdk-8-jdk maven libipmctl-dev pciutils kmod	\
-	libcunit1-dev libopenmpi-dev numactl doxygen libunwind-dev && 	\
+	libcunit1-dev libopenmpi-dev numactl doxygen libunwind-dev	\
+	syslog-ng &&							\
     apt-get clean all
 
 # hack the default shell to bash instead of dash
@@ -85,8 +86,9 @@ ARG CACHEBUST
 RUN apt-get update && apt-get -y upgrade && apt-get clean all
 USER daos_server:daos_server
 
-# Set a label.
-LABEL STOP=yes
+# Set a label.  This is useful for searching for DAOS images, but is also used
+# in github-actions to prune elements of the dockerfile below this point.
+LABEL DAOS=true
 
 WORKDIR /home/daos/daos/
 COPY VERSION LICENSE ftest.sh SConstruct ./
