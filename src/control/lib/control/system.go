@@ -9,7 +9,6 @@ package control
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net"
 	"strings"
 	"time"
@@ -268,7 +267,6 @@ func NewEventForwarder(rpcClient UnaryInvoker, accessPts []string) *EventForward
 // priority level derived from the event severity.
 type EventLogger struct {
 	log        logging.Logger
-	sysloggers map[events.RASSeverityID]*log.Logger
 }
 
 // OnEvent implements the events.Handler interface.
@@ -280,31 +278,10 @@ func (el *EventLogger) OnEvent(_ context.Context, evt *events.RASEvent) {
 	case evt.IsForwarded():
 		return // event has already been logged at source
 	}
-
-	out := evt.PrintRAS()
-	el.log.Info(out)
-	el.sysloggers[evt.Severity].Print(out)
 }
 
 func getSyslogger(sev events.RASSeverityID) *log.Logger {
 	return logging.MustCreateSyslogger(sev.SyslogPriority(), log.LstdFlags)
-}
-
-// newEventLogger returns an initialized EventLogger using the provided function
-// to populate syslog endpoints which map to event severity identifiers.
-func newEventLogger(logBasic logging.Logger, getSyslogger func(events.RASSeverityID) *log.Logger) *EventLogger {
-	el := &EventLogger{
-		log:        logBasic,
-		sysloggers: make(map[events.RASSeverityID]*log.Logger),
-	}
-
-	el.sysloggers[events.RASSeverityUnknown] = getSyslogger(events.RASSeverityUnknown)
-	el.sysloggers[events.RASSeverityFatal] = getSyslogger(events.RASSeverityFatal)
-	el.sysloggers[events.RASSeverityError] = getSyslogger(events.RASSeverityError)
-	el.sysloggers[events.RASSeverityWarn] = getSyslogger(events.RASSeverityWarn)
-	el.sysloggers[events.RASSeverityInfo] = getSyslogger(events.RASSeverityInfo)
-
-	return el
 }
 
 // NewEventLogger returns an initialized EventLogger capable of writing to the
