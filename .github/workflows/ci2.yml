@@ -35,6 +35,8 @@ jobs:
                           --build-arg UID
                           --build-arg DEPS_JOB=10
     - name: Prune images not required for build.
+      run: docker images -a --filter label=DAOS=true --quiet | xargs docker rmi --no-prune
+    - name: Prune images not required for build.
       run: docker images -a --filter label=DAOS=stage1 --quiet | xargs docker rmi --no-prune
 
   Build:
