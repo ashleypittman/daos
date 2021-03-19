@@ -17,20 +17,25 @@ jobs:
   # If the source has changed then the cache-read will fail, a new build will
   # be performed and saved to the cache with a new key.
   Prepare:
+    name: Build and cache docker docker images
     runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: [ubuntu.20.04]
     steps:
     - uses: actions/checkout@v2
     - uses: satackey/action-docker-layer-caching@v0.0.11
       with:
-        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}-{hash}
+        key: docker-${{ matrix.distro }}-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}-{hash}
     - name: Set UID
       run: echo UID=`id -u` >> $GITHUB_ENV
     - name: Prepare base image in Docker
-      run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
+      run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
                           --build-arg DAOS_DEPS_BUILD=no --build-arg UID
                           --build-arg DEPS_JOB=10
     - name: Build dependencies in Docker
-      run: docker build . -f utils/docker/Dockerfile.ubuntu.20.04
+      run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
                           --build-arg DAOS_BUILD=no
                           --build-arg UID
                           --build-arg DEPS_JOB=10
@@ -47,7 +52,7 @@ jobs:
       fail-fast: false
       matrix:
         distro: [ubuntu.20.04]
-        compiler: [clang]
+        compiler: [clang, gcc]
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -59,15 +64,17 @@ jobs:
     - uses: satackey/action-docker-layer-caching@v0.0.11
       continue-on-error: true
       with:
-        key: docker-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}-{hash}
-        restore-keys: docker-
+        key: docker-${{ matrix.distro }}-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}-{hash}
+        restore-keys: docker-${{ matrix.distro }}-
         skip-save: true
     - name: Update dependencies in image.
       run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
                           --build-arg DAOS_BUILD=no
                           --build-arg DEPS_JOB=10
                           --build-arg UID -t build-image
-    - name: Select image
-      run: docker images -a --filter label=DAOS=true --quiet | tail -n 1
-    - name: Run inside
-      run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./daos/utils/run_in_ga.sh
+    - name: Run
+      run: ./utils/run_in_ga_wrapper.sh
+#    - name: Select image
+#      run: docker images -a --filter label=DAOS=true --quiet | tail -n 1
+#    - name: Run inside
+#      run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./daos/utils/run_in_ga.sh

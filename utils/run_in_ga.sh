@@ -3,8 +3,12 @@
 set -e
 cd daos
 
+ls -l
+
+# BUILD_TYPE=debug does not work
+
 echo ::group::Build
-scons --jobs 10 PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=release BUILD_TYPE=debug
+scons --jobs 10 PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=release BUILD_TYPE=dev
 echo ::endgroup::
 
 cat daos.conf
