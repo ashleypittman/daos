@@ -15,18 +15,54 @@ ARG CB0
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install basic tools
-RUN apt-get -y update &&						\
-    apt-get -y install apt-utils &&					\
-    apt-get -y upgrade &&						\
-    apt-get -y install							\
-	build-essential scons python3-distro python3-distutils valgrind	\
-	autoconf libtool-bin locales pkg-config pandoc clang cmake	\
-	libcmocka-dev libnuma-dev patchelf libhwloc-dev libboost-dev	\
-	uuid-dev libssl-dev fuse3 libfuse3-dev curl libjson-c-dev 	\
-	liblz4-dev libibverbs-dev librdmacm-dev libaio-dev yasm		\
-	python3-dev golang-go git libyaml-dev python3-tabulate		\
-	python3-pyxattr openjdk-8-jdk maven libipmctl-dev pciutils kmod	\
-	libcunit1-dev libopenmpi-dev numactl doxygen libunwind-dev &&	\
+RUN apt-get -y update && \
+    apt-get -y install apt-utils && \
+    apt-get -y upgrade && \
+    apt-get -y install \
+        autoconf \
+        build-essential \
+        clang \
+        cmake \
+        curl \
+        doxygen \
+        fuse3 \
+        git \
+        golang-go \
+        kmod \
+        libaio-dev \
+        libboost-dev \
+        libcmocka-dev \
+        libcunit1-dev \
+        libfuse3-dev \
+        libhwloc-dev \
+        libibverbs-dev \
+        libipmctl-dev \
+        libjson-c-dev \
+        liblz4-dev \
+        libnuma-dev \
+        libopenmpi-dev \
+        librdmacm-dev \
+        libssl-dev \
+        libtool-bin \
+        libunwind-dev \
+        libyaml-dev \
+        locales \
+        maven \
+        numactl \
+        openjdk-8-jdk \
+        pandoc \
+        patchelf \
+        pciutils \
+        pkg-config \
+        python3-dev \
+        python3-distro \
+        python3-distutils \
+        python3-pyxattr \
+        python3-tabulate \
+        scons \
+        uuid-dev \
+        valgrind \
+        yasm && \
     apt-get clean all
 
 # hack the default shell to bash instead of dash
