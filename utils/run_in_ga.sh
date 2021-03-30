@@ -1,8 +1,6 @@
 #!/bin/bash
 
 set -e
-cd daos
-
 ls -l
 
 # BUILD_TYPE=debug does not work
