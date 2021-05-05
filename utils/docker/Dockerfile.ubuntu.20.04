@@ -57,9 +57,11 @@ RUN apt-get -y update && \
         python3-dev \
         python3-distro \
         python3-distutils \
+        python3-junit.xml \
         python3-pyxattr \
         python3-tabulate \
         scons \
+        sudo \
         uuid-dev \
         valgrind \
         yasm && \
@@ -80,6 +82,7 @@ RUN useradd --uid $UID --user-group --create-home --shell /bin/bash --home /home
 RUN echo "daos_server:daos_server" | chpasswd
 RUN useradd --user-group --create-home --shell /bin/bash daos_agent
 RUN echo "daos_agent:daos_agent" | chpasswd
+RUN echo "daos_server ALL=(root) NOPASSWD: ALL" >> /etc/sudoers.d/daos_sudo_setup
 
 # Create directory for DAOS backend storage
 RUN mkdir -p /opt/daos /mnt/daos /var/run/daos_server /var/run/daos_agent &&	\

@@ -18,7 +18,6 @@ from apricot import TestWithoutServers
 from general_utils import stop_processes
 from write_host_file import write_host_file
 
-
 class CartTest(TestWithoutServers):
     """Define a Cart test case."""
 
@@ -223,6 +222,7 @@ class CartTest(TestWithoutServers):
             env += " -x CRT_CTX_SHARE_ADDR={!s}".format(ofi_share_addr)
 
         env += " -x CRT_ATTACH_INFO_PATH={!s}".format(daos_test_shared_dir)
+        env += " -x COVFILE=/tmp/test.cov"
 
         self.log_path = log_path
 
@@ -271,6 +271,7 @@ class CartTest(TestWithoutServers):
     def build_cmd(self, env, host, **kwargs):
         """Build a command string."""
         tst_cmd = ""
+        tst_cont = None
 
         index = kwargs.get('index', None)
 
@@ -321,6 +322,11 @@ class CartTest(TestWithoutServers):
             self.orterun, mca_flags, tst_ppn, hostfile)
 
         tst_cmd += env
+
+        tst_cont = os.getenv("CRT_TEST_CONT", "0")
+        if tst_cont is not None:
+            if tst_cont == "1":
+                tst_cmd += " --continuous"
 
         if tst_ctx is not None:
             tst_cmd += " -x CRT_CTX_NUM=" + tst_ctx
@@ -435,15 +441,3 @@ class CartTest(TestWithoutServers):
             # For compatibility with cart tests, which set env vars in oretrun
             # command via -x options
             self.env = os.environ
-
-    def unset_other_env_vars(self):
-        """Unset env vars from yaml file."""
-        default_env = self.params.get("default", "/run/ENV/")
-        if default_env:
-            for kv_pair in default_env:
-                try:
-                    key = kv_pair[0][0]
-                    self.log.info("Removing key %s from environment.", key)
-                    del os.environ[key]
-                except IndexError:
-                    pass

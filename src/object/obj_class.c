@@ -193,18 +193,16 @@ daos_oclass_fit_max(daos_oclass_id_t oc_id, int domain_nr, int target_nr,
 }
 
 int
-dc_set_oclass(daos_handle_t coh, int domain_nr, int target_nr,
+dc_set_oclass(uint64_t rf_factor, int domain_nr, int target_nr,
 	      daos_ofeat_t ofeats, daos_oclass_hints_t hints,
 	      daos_oclass_id_t *oc_id_p)
 {
-	uint64_t		rf_factor;
 	daos_oclass_id_t	cid = 0;
 	struct daos_obj_class	*oc;
 	struct daos_oclass_attr	ca;
 	uint16_t		shd, rdd;
 	int			grp_size;
 
-	rf_factor = dc_cont_hdl2redunfac(coh);
 	rdd = hints & DAOS_OCH_RDD_MASK;
 	shd = hints & DAOS_OCH_SHD_MASK;
 
@@ -225,10 +223,8 @@ dc_set_oclass(daos_handle_t coh, int domain_nr, int target_nr,
 		}
 		break;
 	case DAOS_PROP_CO_REDUN_RF1:
-		if (rdd == DAOS_OCH_RDD_RP) {
-			cid = OC_RP_2GX;
-		} else if (rdd == DAOS_OCH_RDD_EC || ofeats & DAOS_OF_ARRAY ||
-			 ofeats & DAOS_OF_ARRAY_BYTE) {
+		if (rdd == DAOS_OCH_RDD_EC || ofeats & DAOS_OF_ARRAY ||
+		    ofeats & DAOS_OF_ARRAY_BYTE) {
 			if (domain_nr >= 10)
 				cid = OC_EC_8P1GX;
 			else if (domain_nr >= 6)
@@ -240,10 +236,8 @@ dc_set_oclass(daos_handle_t coh, int domain_nr, int target_nr,
 		}
 		break;
 	case DAOS_PROP_CO_REDUN_RF2:
-		if (rdd == DAOS_OCH_RDD_RP) {
-			cid = OC_RP_3GX;
-		} else if (rdd == DAOS_OCH_RDD_EC || ofeats & DAOS_OF_ARRAY ||
-			 ofeats & DAOS_OF_ARRAY_BYTE) {
+		if (rdd == DAOS_OCH_RDD_EC || ofeats & DAOS_OF_ARRAY ||
+		    ofeats & DAOS_OF_ARRAY_BYTE) {
 			if (domain_nr >= 10)
 				cid = OC_EC_8P2GX;
 			else if (domain_nr >= 6)
@@ -264,16 +258,7 @@ dc_set_oclass(daos_handle_t coh, int domain_nr, int target_nr,
 		break;
 	}
 
-	/*
-	 * If there are no sharding hints, we can return.
-	 */
-	if (shd == 0) {
-		oc = oclass_fit_max(cid, domain_nr, target_nr);
-		if (oc)
-			*oc_id_p = oc->oc_id;
-
-		return oc ? 0 : -DER_NONEXIST;
-	}
+	/** we have determined the resilience part, now set the grp size */
 
 	oc = oclass_ident2cl(cid);
 	if (!oc)
@@ -284,7 +269,14 @@ dc_set_oclass(daos_handle_t coh, int domain_nr, int target_nr,
 
 	/** adjust the group size based on the sharding hint */
 	switch (shd) {
+	case 0:
 	case DAOS_OCH_SHD_DEF:
+		if (ofeats & DAOS_OF_ARRAY || ofeats & DAOS_OF_ARRAY_BYTE ||
+		    ofeats & DAOS_OF_KV_FLAT)
+			ca.ca_grp_nr = DAOS_OBJ_GRP_MAX;
+		else
+			ca.ca_grp_nr = 1;
+		break;
 	case DAOS_OCH_SHD_MAX:
 		ca.ca_grp_nr = DAOS_OBJ_GRP_MAX;
 		break;
