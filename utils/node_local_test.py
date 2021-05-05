@@ -507,9 +507,6 @@ class DaosServer():
         if self.conf.args.no_root:
             cmd.append('--recreate-superblocks')
 
-        if self.conf.args.no_root:
-            cmd.append('--recreate-superblocks')
-
         self._sp = subprocess.Popen(cmd)
 
         agent_config = os.path.join(self_dir, 'nlt_agent.yaml')
