@@ -74,13 +74,13 @@ jobs:
                           --build-arg UID -t build-image
     - name: Run
       run: ./utils/run_in_ga_wrapper.sh
-    - name: Copy results
-      run: docker cp build-post:/home/daos/nlt-junit.xml ./
-    - name: Publish NLT Test Results
-      uses: EnricoMi/publish-unit-test-result-action@v1.7
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        files: nlt-junit.xml
+#    - name: Copy results
+#      run: docker cp build-post:/home/daos/nlt-junit.xml ./
+#    - name: Publish NLT Test Results
+#      uses: EnricoMi/publish-unit-test-result-action@v1.7
+#      with:
+#        github_token: ${{ secrets.GITHUB_TOKEN }}
+#        files: nlt-junit.xml
 #    - name: Select image
 #      run: docker images -a --filter label=DAOS=true --quiet | tail -n 1
 #    - name: Run inside
