@@ -2812,8 +2812,8 @@ def main():
         server = DaosServer(conf, test_class='no-debug')
         server.start(clean=False)
         if fi_test:
-            fatal_errors.add_result(test_alloc_fail_cat(server,
-                                                        conf, wf_client))
+#            fatal_errors.add_result(test_alloc_fail_cat(server,
+#                                                        conf, wf_client))
             fatal_errors.add_result(test_alloc_fail(server, conf))
         if args.perf_check:
             check_readdir_perf(server, conf)
