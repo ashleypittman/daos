@@ -575,6 +575,7 @@ class DaosServer():
                 rc = self._sp.wait(timeout=5)
                 res = 'daos server died waiting for start'
                 print(rc)
+                print(self._sp)
                 self._add_test_case('format', failure=res)
                 raise Exception(res)
             except subprocess.TimeoutExpired:
