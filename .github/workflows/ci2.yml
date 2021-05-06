@@ -33,12 +33,12 @@ jobs:
     - name: Prepare base image in Docker
       run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
                           --build-arg DAOS_DEPS_BUILD=no --build-arg UID
-                          --build-arg DEPS_JOB=10
+                          --build-arg DEPS_JOBS=10
     - name: Build dependencies in Docker
       run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
                           --build-arg DAOS_BUILD=no
                           --build-arg UID
-                          --build-arg DEPS_JOB=10
+                          --build-arg DEPS_JOBS=10
     - name: Prune images not required for build.
       run: docker images -a --filter label=DAOS=true --quiet | xargs docker rmi --no-prune
     - name: Prune images not required for build.
@@ -70,7 +70,7 @@ jobs:
     - name: Update dependencies in image.
       run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
                           --build-arg DAOS_BUILD=no
-                          --build-arg DEPS_JOB=10
+                          --build-arg DEPS_JOBS=10
                           --build-arg UID -t build-image
     - name: Run
       run: ./utils/run_in_ga_wrapper.sh
