@@ -26,6 +26,6 @@ echo ::endgroup::
 #./utils/node_local_test.py --no-root kv
 #echo ::endgroup::
 
-#echo ::group::Fault injection test
-#./utils/node_local_test.py --no-root fi
-#echo ::endgroup::
+echo ::group::Fault injection test
+./utils/node_local_test.py --no-root fi
+echo ::endgroup::
