@@ -2,14 +2,14 @@
 
 set -e
 
-echo ::group::Build
+echo ::group::Build type debug.
 scons --jobs 10 PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=release BUILD_TYPE=debug
 echo ::endgroup::
 
 cat daos.conf
 
-echo ::group::Install
-scons --jobs 10 install
+echo ::group::Install debug
+scons install
 echo ::endgroup::
 
 echo ::group::Setting up daos_admin
@@ -28,4 +28,15 @@ echo ::endgroup::
 
 echo ::group::Fault injection test
 ./utils/node_local_test.py --no-root fi
+echo ::endgroup::
+
+
+echo ::group::Build type dev.
+scons -c
+scons -c install
+scons --jobs 10 PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=release BUILD_TYPE=dev
+echo ::endgroup::
+
+echo ::group::Install dev
+scons install
 echo ::endgroup::

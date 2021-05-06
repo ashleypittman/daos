@@ -572,8 +572,9 @@ class DaosServer():
         cmd = ['storage', 'format', '--json']
         while True:
             try:
-                self._sp.wait(timeout=5)
+                rc = self._sp.wait(timeout=5)
                 res = 'daos server died waiting for start'
+                print(rc)
                 self._add_test_case('format', failure=res)
                 raise Exception(res)
             except subprocess.TimeoutExpired:
