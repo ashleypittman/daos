@@ -29,6 +29,9 @@ echo ::endgroup::
 #./utils/node_local_test.py --no-root kv
 #echo ::endgroup::
 
+# Allow time for sockets to settle down.
+sleep 5
+
 echo ::group::Fault injection test
 ./utils/node_local_test.py --no-root fi
 echo ::endgroup::
