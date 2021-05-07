@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distro: [ubuntu.20.04]
+        distro: [ubuntu.20.04, centos.8]
     steps:
     - uses: actions/checkout@v2
     - uses: satackey/action-docker-layer-caching@v0.0.11
