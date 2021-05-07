@@ -9,6 +9,11 @@ then
     SCONS=scons-3
 fi
 
+echo ::group::Rebuild spdk
+rm -rf /opt/daos/install/prereq/release/spdk
+$SCONS PREFIX=/opt/daos --build-deps=yes --deps-only
+echo ::endgroup::
+
 echo ::group::Build type debug.
 $SCONS --jobs 10 PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=release BUILD_TYPE=debug
 echo ::endgroup::
