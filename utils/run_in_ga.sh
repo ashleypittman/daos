@@ -2,14 +2,21 @@
 
 set -e
 
+SCONS=scons
+
+if [ ! -e /usr/bin/scons ]
+then
+    SCONS=scons-3
+fi
+
 echo ::group::Build type debug.
-scons --jobs 10 PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=release BUILD_TYPE=debug
+$SCONS --jobs 10 PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=release BUILD_TYPE=debug
 echo ::endgroup::
 
 cat daos.conf
 
 echo ::group::Install debug
-scons install
+$SCONS install
 echo ::endgroup::
 
 echo ::group::Setting up daos_admin
@@ -38,11 +45,11 @@ echo ::endgroup::
 
 
 echo ::group::Build type dev.
-scons -c
-scons -c install
-scons --jobs 10 PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=release BUILD_TYPE=dev
+$SCONS -c
+$SCONS -c install
+$SCONS --jobs 10 PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=release BUILD_TYPE=dev
 echo ::endgroup::
 
 echo ::group::Install dev
-scons install
+$SCONS install
 echo ::endgroup::
