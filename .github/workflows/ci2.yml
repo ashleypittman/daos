@@ -1,10 +1,9 @@
-name: DAOS test Build.
+name: DAOS Test Build.
 
 on:
    push:
      branches:
        - master
-       - 'release/*'
    pull_request:
 
 jobs:
@@ -17,7 +16,7 @@ jobs:
   # If the source has changed then the cache-read will fail, a new build will
   # be performed and saved to the cache with a new key.
   Prepare:
-    name: Build and cache docker docker images
+    name: Build docker images
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -29,8 +28,6 @@ jobs:
       with:
         key: docker-${{ matrix.distro }}-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}-{hash}
         restore-keys: docker-${{ matrix.distro }}-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}-
-    - name: Set UID
-      run: echo UID=`id -u` >> $GITHUB_ENV
     - name: Prepare base image in Docker
       run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
                           --build-arg DAOS_DEPS_BUILD=no --build-arg UID
@@ -38,14 +35,11 @@ jobs:
     - name: Build dependencies in Docker
       run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
                           --build-arg DAOS_BUILD=no
-                          --build-arg UID
                           --build-arg DEPS_JOBS=10
     - name: Prune images not required for build.
       run: docker images -a --filter label=DAOS=true --quiet | xargs docker rmi --no-prune
     - name: Prune images not required for build.
       run: docker images -a --filter label=DAOS=stage1 --quiet | xargs docker rmi --no-prune
-    - name: CPU features
-      run: cat /proc/cpuinfo
 
   Build:
     name: Run DAOS tests
@@ -61,8 +55,6 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: true
-    - name: Set UID
-      run: echo UID=`id -u` >> $GITHUB_ENV
     # https://github.com/marketplace/actions/docker-layer-caching
     - uses: satackey/action-docker-layer-caching@v0.0.11
       continue-on-error: true
@@ -74,22 +66,6 @@ jobs:
       run: docker build . -f utils/docker/Dockerfile.${{ matrix.distro }}
                           --build-arg DAOS_BUILD=no
                           --build-arg DEPS_JOBS=10
-                          --build-arg UID -t build-image
-    - name: CPU features
-      run: cat /proc/cpuinfo
+                          -t build-image
     - name: Run
       run: ./utils/run_in_ga_wrapper.sh
-    - name: dmesg
-      if: always()
-      run: dmesg
-#    - name: Copy results
-#      run: docker cp build-post:/home/daos/nlt-junit.xml ./
-#    - name: Publish NLT Test Results
-#      uses: EnricoMi/publish-unit-test-result-action@v1.7
-#      with:
-#        github_token: ${{ secrets.GITHUB_TOKEN }}
-#        files: nlt-junit.xml
-#    - name: Select image
-#      run: docker images -a --filter label=DAOS=true --quiet | tail -n 1
-#    - name: Run inside
-#      run: docker run --mount type=tmpfs,destination=/mnt/daos,tmpfs-mode=1777 build-image ./daos/utils/run_in_ga.sh

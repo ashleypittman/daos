@@ -581,6 +581,7 @@ class DaosServer():
             except subprocess.TimeoutExpired:
                 pass
             rc = self.run_dmg(cmd)
+
             data = json.loads(rc.stdout.decode('utf-8'))
             print('cmd: {} data: {}'.format(cmd, data))
 
@@ -2676,7 +2677,7 @@ def test_alloc_fail_cat(server, conf, wf):
     dfuse.stop()
     return rc
 
-def test_alloc_fail(server, conf):
+def test_alloc_fail(server, conf, wf):
     """run 'daos' client binary with fault injection"""
 
     pools = get_pool_list()
@@ -2697,6 +2698,7 @@ def test_alloc_fail(server, conf):
     # the command works.
     container = create_cont(conf, pool)
     test_cmd.check_stderr = True
+    test_cmd.wf = wf
 
     rc = test_cmd.launch()
     destroy_container(conf, pool, container)
@@ -2769,6 +2771,8 @@ def main():
         fatal_errors.add_result(set_server_fi(server))
     elif args.mode == 'fi':
         fi_test = True
+    elif args.mode == 'fi-core':
+        fi_test = True
     elif args.mode == 'all':
         fi_test = True
         fatal_errors.add_result(run_il_test(server, conf))
@@ -2813,9 +2817,12 @@ def main():
         server = DaosServer(conf, test_class='no-debug')
         server.start(clean=False)
         if fi_test:
-#            fatal_errors.add_result(test_alloc_fail_cat(server,
-#                                                        conf, wf_client))
-            fatal_errors.add_result(test_alloc_fail(server, conf))
+            if args.mode != 'fi-core':
+                # Don't do this one in github actions as it doesn't work well
+                # with fuse.
+                fatal_errors.add_result(test_alloc_fail_cat(server,
+                                                            conf, wf_client))
+            fatal_errors.add_result(test_alloc_fail(server, conf, wf_client))
         if args.perf_check:
             check_readdir_perf(server, conf)
         if server.stop(wf_server) != 0:

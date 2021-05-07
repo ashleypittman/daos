@@ -31,10 +31,7 @@ echo ::endgroup::
 
 echo ::group::Container copy test
 export LD_LIBRARY_PATH=/opt/daos/lib:/opt/daos/lib64:/opt/daos/bin/../lib64/daos_srv/../../prereq/release/spdk/lib/:$LD_LIBRARY_PATH
-set +e
 ./utils/node_local_test.py --no-root --test cont_copy
-dmesg
-set -e
 echo ::endgroup::
 
 #echo ::group::Key Value test
@@ -45,7 +42,7 @@ echo ::endgroup::
 sleep 5
 
 echo ::group::Fault injection test
-./utils/node_local_test.py --no-root fi
+./utils/node_local_test.py --no-root fi-core
 echo ::endgroup::
 
 
