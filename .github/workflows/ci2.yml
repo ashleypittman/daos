@@ -43,6 +43,8 @@ jobs:
       run: docker images -a --filter label=DAOS=true --quiet | xargs docker rmi --no-prune
     - name: Prune images not required for build.
       run: docker images -a --filter label=DAOS=stage1 --quiet | xargs docker rmi --no-prune
+    - name: CPU features
+      run: cat /proc/cpuinfo
 
   Build:
     name: Run DAOS tests
@@ -72,6 +74,8 @@ jobs:
                           --build-arg DAOS_BUILD=no
                           --build-arg DEPS_JOBS=10
                           --build-arg UID -t build-image
+    - name: CPU features
+      run: cat /proc/cpuinfo
     - name: Run
       run: ./utils/run_in_ga_wrapper.sh
     - name: dmesg
