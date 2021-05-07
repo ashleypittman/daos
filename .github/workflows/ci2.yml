@@ -74,6 +74,9 @@ jobs:
                           --build-arg UID -t build-image
     - name: Run
       run: ./utils/run_in_ga_wrapper.sh
+    - name: dmesg
+      if: always()
+      run: dmesg
 #    - name: Copy results
 #      run: docker cp build-post:/home/daos/nlt-junit.xml ./
 #    - name: Publish NLT Test Results
