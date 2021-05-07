@@ -10,7 +10,7 @@ then
 fi
 
 echo ::group::Rebuild spdk
-rm -rf /opt/daos/install/prereq/release/spdk
+rm -rf /opt/daos/prereq/release/spdk
 $SCONS PREFIX=/opt/daos --build-deps=yes --deps-only
 echo ::endgroup::
 
