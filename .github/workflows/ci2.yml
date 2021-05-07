@@ -28,7 +28,7 @@ jobs:
     - uses: satackey/action-docker-layer-caching@v0.0.11
       with:
         key: docker-${{ matrix.distro }}-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}-{hash}
-        restore-keys: docker-${{ matrix.distro }}-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}
+        restore-keys: docker-${{ matrix.distro }}-${{ hashFiles('utils/sl', 'utils/docker', 'utils/build.config', 'SConstruct', '.github') }}-
     - name: Set UID
       run: echo UID=`id -u` >> $GITHUB_ENV
     - name: Prepare base image in Docker
