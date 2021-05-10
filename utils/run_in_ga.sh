@@ -34,6 +34,8 @@ export LD_LIBRARY_PATH=/opt/daos/lib:/opt/daos/lib64:/opt/daos/bin/../lib64/daos
 ./utils/node_local_test.py --no-root --test cont_copy
 echo ::endgroup::
 
+exit 0
+
 #echo ::group::Key Value test
 #./utils/node_local_test.py --no-root kv
 #echo ::endgroup::
