@@ -686,7 +686,7 @@ class DaosServer():
 
         rc = self.run_dmg(['system', 'stop'])
         print(rc)
-        assert rc.returncode == 0
+        #assert rc.returncode == 0
 
         start = time.time()
         max_stop_time = 30
