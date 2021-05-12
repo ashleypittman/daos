@@ -692,7 +692,7 @@ class DaosServer():
         max_stop_time = 30
         while True:
             try:
-                self._sl.wait(timeout=0.5)
+                self._sp.wait(timeout=0.5)
                 break
             except subprocess.TimeoutExpired:
                 if self._check_system_state('stopped'):
