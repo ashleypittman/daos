@@ -51,7 +51,8 @@ jobs:
         # Only run on Ubuntu for now, centos 8 just isn't very stable.
         distro: [ubuntu.20.04]
         compiler: [clang, gcc]
-    env: COMPILER: ${{ matrix.compiler }}
+    env:
+      COMPILER: ${{ matrix.compiler }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
