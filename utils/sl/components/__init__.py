@@ -298,15 +298,13 @@ def define_components(reqs):
                 retriever=retriever,
                 commands=['cd dpdk; '                            \
                           'git fetch; '                          \
-                          'git checkout origin/spdk-19.11.6',
+                          'git checkout origin/spdk-19.11.6',    \
                           './configure --prefix="$SPDK_PREFIX"'                \
                           ' --disable-tests --without-vhost --without-crypto'  \
                           ' --without-pmdk --without-vpp --without-rbd'        \
                           ' --with-rdma --with-shared'                         \
                           ' --without-iscsi-initiator --without-isal'          \
-                          ' --without-vtune',
-                          'make $JOBS_OPT DPDK_CFLAGS=-march=core2',
-                          'make install',
+                          ' --without-vtune', 'make $JOBS_OPT', 'make install',
                           'cp dpdk/build/lib/* "$SPDK_PREFIX/lib"',
                           'mkdir -p "$SPDK_PREFIX/share/spdk"',
                           'cp -r include scripts "$SPDK_PREFIX/share/spdk"'],

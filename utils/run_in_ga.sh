@@ -15,7 +15,7 @@ $SCONS PREFIX=/opt/daos --build-deps=yes --deps-only
 echo ::endgroup::
 
 echo ::group::Build type debug.
-$SCONS --jobs 10 PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=release BUILD_TYPE=debug
+$SCONS --jobs 10 PREFIX=/opt/daos COMPILER=$COMPILER TARGET_TYPE=release BUILD_TYPE=debug
 echo ::endgroup::
 
 cat daos.conf
