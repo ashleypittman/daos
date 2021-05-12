@@ -691,10 +691,13 @@ class DaosServer():
         start = time.time()
         max_stop_time = 30
         while True:
-            time.sleep(0.5)
-            if self._check_system_state('stopped'):
+            try:
+                self._sl.wait(timeout=0.5)
                 break
-            self._check_timing("stop", start, max_stop_time)
+            except subprocess.TimeoutExpired:
+                if self._check_system_state('stopped'):
+                    break
+                self._check_timing("stop", start, max_stop_time)
 
         self._add_test_case('stop')
         print('Server stopped in {:.2f} seconds'.format(time.time() - start))
