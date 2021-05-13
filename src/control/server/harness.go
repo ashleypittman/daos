@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	rankReqTimeout   = 60 * time.Second
+	rankReqTimeout   = 10 * time.Second
 	rankStartTimeout = 3 * rankReqTimeout
 )
 
