@@ -33,27 +33,3 @@ echo ::group::Container copy test
 export LD_LIBRARY_PATH=/opt/daos/lib:/opt/daos/lib64:/opt/daos/bin/../lib64/daos_srv/../../prereq/release/spdk/lib/:$LD_LIBRARY_PATH
 ./utils/node_local_test.py --no-root --test cont_copy
 echo ::endgroup::
-
-exit 0
-
-#echo ::group::Key Value test
-#./utils/node_local_test.py --no-root kv
-#echo ::endgroup::
-
-# Allow time for sockets to settle down.
-sleep 5
-
-echo ::group::Fault injection test
-./utils/node_local_test.py --no-root fi-core
-echo ::endgroup::
-
-
-echo ::group::Build type dev.
-$SCONS -c
-$SCONS -c install
-$SCONS --jobs 10 PREFIX=/opt/daos COMPILER=clang TARGET_TYPE=release BUILD_TYPE=dev
-echo ::endgroup::
-
-echo ::group::Install dev
-$SCONS install
-echo ::endgroup::
