@@ -569,10 +569,8 @@ class DaosServer():
         cmd = ['storage', 'format', '--json']
         while True:
             try:
-                rc = self._sp.wait(timeout=5)
+                self._sp.wait(timeout=5)
                 res = 'daos server died waiting for start'
-                print(rc)
-                print(self._sp)
                 self._add_test_case('format', failure=res)
                 raise Exception(res)
             except subprocess.TimeoutExpired:
@@ -682,7 +680,7 @@ class DaosServer():
 
         rc = self.run_dmg(['system', 'stop'])
         print(rc)
-        #assert rc.returncode == 0
+        assert rc.returncode == 0
 
         start = time.time()
         max_stop_time = 30
@@ -2711,7 +2709,7 @@ def test_alloc_fail_cat(server, conf, wf):
     dfuse.stop()
     return rc
 
-def test_alloc_fail(server, conf, wf):
+def test_alloc_fail(server, conf):
     """run 'daos' client binary with fault injection"""
 
     pools = get_pool_list()
@@ -2732,7 +2730,6 @@ def test_alloc_fail(server, conf, wf):
     # the command works.
     container = create_cont(conf, pool)
     test_cmd.check_stderr = True
-    test_cmd.wf = wf
 
     rc = test_cmd.launch()
     destroy_container(conf, pool, container)
@@ -2777,8 +2774,9 @@ def main():
                          junit=True,
                          class_id=args.class_name)
 
-    wf_server = WarningsFactory('nlt-server-leaks.json', post=True, check='Server leak checking')
-    wf_client = WarningsFactory('nlt-client-leaks.json', post=True, check='Fault injection')
+    wf_server = WarningsFactory('nlt-server-leaks.json',
+                                post=True, check='Server leak checking')
+    wf_client = WarningsFactory('nlt-client-leaks.json')
 
     conf.set_wf(wf)
     conf.set_args(args)
@@ -2851,7 +2849,7 @@ def main():
         if fi_test:
             fatal_errors.add_result(test_alloc_fail_cat(server,
                                                         conf, wf_client))
-            fatal_errors.add_result(test_alloc_fail(server, conf, wf_client))
+            fatal_errors.add_result(test_alloc_fail(server, conf))
         if args.perf_check:
             check_readdir_perf(server, conf)
         if server.stop(wf_server) != 0:
