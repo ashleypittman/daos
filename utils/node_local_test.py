@@ -687,13 +687,10 @@ class DaosServer():
         start = time.time()
         max_stop_time = 30
         while True:
-            try:
-                self._sp.wait(timeout=0.5)
+            time.sleep(0.5)
+            if self._check_system_state('stopped'):
                 break
-            except subprocess.TimeoutExpired:
-                if self._check_system_state('stopped'):
-                    break
-                self._check_timing("stop", start, max_stop_time)
+            self._check_timing("stop", start, max_stop_time)
 
         self._add_test_case('stop')
         print('Server stopped in {:.2f} seconds'.format(time.time() - start))
@@ -2808,8 +2805,6 @@ def main():
         fatal_errors.add_result(set_server_fi(server))
     elif args.mode == 'fi':
         fi_test = True
-    elif args.mode == 'fi-core':
-        fi_test = True
     elif args.mode == 'all':
         fi_test = True
         fatal_errors.add_result(run_il_test(server, conf))
@@ -2854,11 +2849,8 @@ def main():
         server = DaosServer(conf, test_class='no-debug')
         server.start(clean=False)
         if fi_test:
-            if args.mode != 'fi-core':
-                # Don't do this one in github actions as it doesn't work well
-                # with fuse.
-                fatal_errors.add_result(test_alloc_fail_cat(server,
-                                                            conf, wf_client))
+            fatal_errors.add_result(test_alloc_fail_cat(server,
+                                                        conf, wf_client))
             fatal_errors.add_result(test_alloc_fail(server, conf, wf_client))
         if args.perf_check:
             check_readdir_perf(server, conf)

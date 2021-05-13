@@ -30,6 +30,7 @@ echo ::group::Setting up daos_admin
 echo ::endgroup::
 
 echo ::group::Container copy test
+# DAOS-7440
 export LD_LIBRARY_PATH=/opt/daos/lib:/opt/daos/lib64:/opt/daos/bin/../lib64/daos_srv/../../prereq/release/spdk/lib/:$LD_LIBRARY_PATH
 ./utils/node_local_test.py --no-root --test cont_copy
 echo ::endgroup::
