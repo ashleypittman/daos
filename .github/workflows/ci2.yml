@@ -4,6 +4,7 @@ on:
    push:
      branches:
        - master
+       - 'release/*'
    pull_request:
 
 jobs:
@@ -87,7 +88,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Run this on distros where we don't test.
+        # Run this on distros where we don't run the ci1 Workflow.
         distro: [ubuntu.20.04, centos.8]
         compiler: [clang, gcc]
     steps:
@@ -111,3 +112,8 @@ jobs:
                           --build-arg DAOS_JAVA_BUILD=no
                           --build-arg DEPS_JOBS=10
                           --build-arg COMPILER=${{ matrix.compiler }}
+    - name: Build Java in docker.
+      run: docker build . --file utils/docker/Dockerfile.${{ matrix.distro }}
+                          --build-arg DEPS_JOBS=10
+                          --build-arg COMPILER=${{ matrix.compiler }}
+
