@@ -116,4 +116,3 @@ jobs:
       run: docker build . --file utils/docker/Dockerfile.${{ matrix.distro }}
                           --build-arg DEPS_JOBS=10
                           --build-arg COMPILER=${{ matrix.compiler }}
-
