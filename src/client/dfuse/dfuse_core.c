@@ -55,6 +55,7 @@ dfuse_progress_thread(void *arg)
 	return NULL;
 }
 
+#if 0
 /* Parse a string to a time, used for reading container attributes info
  * timeouts.
  */
@@ -90,6 +91,7 @@ dfuse_parse_time(char *buff, size_t len, unsigned int *_out)
 	*_out = out;
 	return 0;
 }
+#endif
 
 /* Inode entry hash table operations */
 
@@ -490,6 +492,8 @@ cont_attr_names[ATTR_COUNT] = {"dfuse-attr-time",
  */
 #define ATTR_VALUE_LEN 128
 
+static void dfuse_set_default_cont_cache_values(struct dfuse_cont *dfc);
+
 /* Setup caching attributes for a container.
  *
  * These are read from pool attributes, or can be overwritten on the command
@@ -502,6 +506,13 @@ cont_attr_names[ATTR_COUNT] = {"dfuse-attr-time",
 static int
 dfuse_cont_get_cache(struct dfuse_cont *dfc)
 {
+#if 1
+	/**
+	 * XXX use default cache value until DAOS-7671 is fixed
+	 */
+	dfuse_set_default_cont_cache_values(dfc);
+	return 0;
+#else
 	size_t		size;
 	char		*buff;
 	int		rc;
@@ -606,6 +617,7 @@ dfuse_cont_get_cache(struct dfuse_cont *dfc)
 out:
 	D_FREE(buff);
 	return rc;
+#endif
 }
 
 /* Set default cache values for a container.
@@ -898,15 +910,15 @@ dfuse_start(struct dfuse_projection_info *fs_handle,
 	if (!args.argv)
 		D_GOTO(err, rc = -DER_NOMEM);
 
-	args.argv[0] = strndup("", 1);
+	args.argv[0] = strdup("");
 	if (!args.argv[0])
 		D_GOTO(err, rc = -DER_NOMEM);
 
-	args.argv[1] = strndup("-ofsname=dfuse", 32);
+	args.argv[1] = strdup("-ofsname=dfuse");
 	if (!args.argv[1])
 		D_GOTO(err, rc = -DER_NOMEM);
 
-	args.argv[2] = strndup("-osubtype=daos", 32);
+	args.argv[2] = strdup("-osubtype=daos");
 	if (!args.argv[2])
 		D_GOTO(err, rc = -DER_NOMEM);
 
@@ -914,7 +926,7 @@ dfuse_start(struct dfuse_projection_info *fs_handle,
 	if (rc < 0 || !args.argv[3])
 		D_GOTO(err, rc = -DER_NOMEM);
 
-	args.argv[4] = strndup("-odefault_permissions", 32);
+	args.argv[4] = strdup("-odefault_permissions");
 	if (!args.argv[4])
 		D_GOTO(err, rc = -DER_NOMEM);
 
