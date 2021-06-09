@@ -278,10 +278,8 @@ populate_whitelist(struct spdk_env_opts *opts)
 	}
 
 	D_FREE(trid);
-	if (rc && opts->pci_whitelist != NULL) {
+	if (rc)
 		D_FREE(opts->pci_whitelist);
-		opts->pci_whitelist = NULL;
-	}
 
 	return rc;
 }
@@ -316,8 +314,7 @@ bio_spdk_env_init(void)
 	opts.env_context = "--log-level=lib.eal:4";
 
 	rc = spdk_env_init(&opts);
-	if (opts.pci_whitelist != NULL)
-		D_FREE(opts.pci_whitelist);
+	D_FREE(opts.pci_whitelist);
 	if (rc != 0) {
 		rc = -DER_INVAL; /* spdk_env_init() returns -1 */
 		D_ERROR("Failed to initialize SPDK env, "DF_RC"\n", DP_RC(rc));
@@ -370,6 +367,8 @@ bio_nvme_init(const char *nvme_conf, int shm_id, int mem_size,
 	bio_chk_cnt_init = DAOS_DMA_CHUNK_CNT_INIT;
 	bio_chk_cnt_max = DAOS_DMA_CHUNK_CNT_MAX;
 	bio_chk_sz = (size_mb << 20) >> BIO_DMA_PAGE_SHIFT;
+
+	D_ASSERT(false);
 
 	d_getenv_bool("DAOS_SCM_RDMA_ENABLED", &bio_scm_rdma);
 	D_INFO("RDMA to SCM is %s\n", bio_scm_rdma ? "enabled" : "disabled");
@@ -720,8 +719,7 @@ destroy_bio_bdev(struct bio_bdev *d_bdev)
 		d_bdev->bb_blobstore = NULL;
 	}
 
-	if (d_bdev->bb_name != NULL)
-		D_FREE(d_bdev->bb_name);
+	D_FREE(d_bdev->bb_name);
 
 	D_FREE(d_bdev);
 }
@@ -1343,7 +1341,6 @@ retry:
 
 		D_DEBUG(DB_MGMT, "Loaded bs, tgt_id:%d, xs:%p dev:%s\n",
 			tgt_id, ctxt, d_bdev->bb_name);
-
 	}
 
 	if (bbs->bb_state == BIO_BS_STATE_OUT)
