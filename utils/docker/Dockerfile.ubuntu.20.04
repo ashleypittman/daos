@@ -48,6 +48,7 @@ RUN apt-get -y update && \
         libyaml-dev \
         locales \
         maven \
+        meson \
         numactl \
         openjdk-8-jdk \
         pandoc \
