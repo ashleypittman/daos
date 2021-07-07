@@ -2198,8 +2198,7 @@ out:
 }
 
 int
-dfs_remove(dfs_t *dfs, dfs_obj_t *parent, const char *name, bool force,
-	   daos_obj_id_t *oid)
+dfs_removeoi(dfs_t *dfs, dfs_obj_t *parent, const char *name, bool force, daos_obj_id_t *oid)
 {
 	struct dfs_entry	entry = {0};
 	daos_handle_t		th = DAOS_TX_NONE;
@@ -2237,6 +2236,10 @@ restart:
 
 	if (!exists)
 		D_GOTO(out, rc = ENOENT);
+
+	/* Check if the file is the expected one */
+	if ((oid && (oid->lo || oid->hi)) && (oid->lo != entry.oid.lo || oid->hi != entry.oid.hi))
+		D_GOTO(out, rc = EBADF);
 
 	if (S_ISDIR(entry.mode)) {
 		uint32_t nr = 0;
@@ -2290,6 +2293,15 @@ out:
 	if (rc == ERESTART)
 		goto restart;
 	return rc;
+}
+
+int
+dfs_remove(dfs_t *dfs, dfs_obj_t *parent, const char *name, bool force, daos_obj_id_t *oid)
+{
+	if (oid && (oid->hi || oid->lo))
+		return EINVAL;
+
+	return dfs_removeoi(dfs, parent, name, force, oid);
 }
 
 static int
@@ -2951,7 +2963,6 @@ dfs_open_stat(dfs_t *dfs, dfs_obj_t *parent, const char *name, mode_t mode,
 	size_t			len;
 	daos_size_t		file_size = 0;
 	int			rc;
-
 
 	if (dfs == NULL || !dfs->mounted)
 		return EINVAL;
@@ -4164,8 +4175,9 @@ out:
 	return rc;
 }
 
+/* Accepts oid as input or output parameter */
 int
-dfs_move(dfs_t *dfs, dfs_obj_t *parent, char *name, dfs_obj_t *new_parent,
+dfs_moveoi(dfs_t *dfs, dfs_obj_t *parent, char *name, dfs_obj_t *new_parent,
 	 char *new_name, daos_obj_id_t *oid)
 {
 	struct dfs_entry	entry = {0}, new_entry = {0};
@@ -4273,8 +4285,13 @@ restart:
 			D_GOTO(out, rc);
 		}
 
-		if (oid)
+		if (oid) {
+			if ((oid->lo || oid->hi) && \
+				(oid->lo != new_entry.oid.lo || oid->hi != new_entry.oid.hi))
+				D_GOTO(out, rc = EBADF);
+
 			oid_cp(oid, new_entry.oid);
+		}
 	}
 
 	/** rename symlink */
@@ -4344,6 +4361,17 @@ out:
 		D_FREE(new_entry.value);
 	}
 	return rc;
+}
+
+/* Wrapper function, only permit oid as a input parameter and return if it's set */
+int
+dfs_move(dfs_t *dfs, dfs_obj_t *parent, char *name, dfs_obj_t *new_parent,
+	 char *new_name, daos_obj_id_t *oid)
+{
+	if (oid && (oid->hi || oid->lo))
+		return EINVAL;
+
+	return dfs_moveoi(dfs, parent, name, new_parent, new_name, oid);
 }
 
 int
