@@ -2818,6 +2818,13 @@ class AllocFailTestRun():
         self.fault_injected = None
         self.loc = loc
 
+        self._fault_config = [{'id': 0,
+                               'probability_x': 1,
+                               'max_faults': 1}]
+
+        if aft.skip_daos_init:
+            self._fault_config.append({'id': 10, 'probability_x': 1})
+
         prefix = 'dnt_fi_check_{}_'.format(get_inc_id())
         self.log_file = tempfile.NamedTemporaryFile(prefix=prefix,
                                                     suffix='.log',
@@ -2837,22 +2844,14 @@ class AllocFailTestRun():
 
     def start(self):
         """Start the command"""
-        fc = {}
+
         if self.loc:
-            fc['fault_config'] = [{'id': 0,
-                                   'probability_x': 1,
-                                   'probability_y': 1,
-                                   'interval': self.loc,
-                                   'max_faults': 1}]
-
-            self._fi_file = tempfile.NamedTemporaryFile(prefix='fi_',
-                                                        suffix='.yaml')
-
+            fc = {'fault_config': self._fault_config}
+            fc['fault_config'][0]['interval'] = self.loc
+            self._fi_file = tempfile.NamedTemporaryFile(prefix='fi_', suffix='.yaml')
             self._fi_file.write(yaml.dump(fc, encoding='utf=8'))
             self._fi_file.flush()
-
             self.env['D_FI_CONFIG'] = self._fi_file.name
-
         if self.vh:
             exec_cmd = self.vh.get_cmd_prefix()
             exec_cmd.extend(self.cmd)
@@ -2971,6 +2970,8 @@ class AllocFailTest():
         self.expected_stdout = None
         self.use_il = False
         self.wf = conf.wf
+        # Instruct the fault injection code to skip daos_init().
+        self.skip_daos_init = False
 
     def launch(self):
         """Run all tests for this command"""
@@ -2996,7 +2997,7 @@ class AllocFailTest():
             max_child = int(num_cores / 4 * 3)
 
         active = []
-        fid = 1
+        fid = 2
         max_count = 0
         finished = False
 
@@ -3130,6 +3131,7 @@ def test_alloc_fail_cat(server, conf, wf):
     cmd = ['cat', target_file]
 
     test_cmd = AllocFailTest(conf, cmd)
+    test_cmd.skip_daos_init = True
     test_cmd.use_il = True
     test_cmd.wf = wf
 
@@ -3276,11 +3278,9 @@ def main():
         server = DaosServer(conf, test_class='no-debug')
         server.start()
         if fi_test:
-#            fatal_errors.add_result(test_alloc_fail_copy(server, conf,
-#                                                         wf_client))
-            fatal_errors.add_result(test_alloc_fail_cat(server,
-                                                        conf, wf_client))
             fatal_errors.add_result(test_alloc_fail(server, conf))
+            fatal_errors.add_result(test_alloc_fail_cat(server, conf, wf_client))
+            # fatal_errors.add_result(test_alloc_fail_copy(server, conf, wf_client))
         if args.perf_check:
             check_readdir_perf(server, conf)
         if server.stop(wf_server) != 0:
