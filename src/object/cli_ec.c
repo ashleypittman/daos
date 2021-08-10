@@ -205,7 +205,17 @@ obj_ec_seg_pack(struct obj_ec_seg_sorter *sorter, d_sg_list_t *sgl)
 		D_ASSERT(tgt_head->esh_first != OBJ_EC_SEG_NIL);
 		seg = &sorter->ess_segs[tgt_head->esh_first];
 		do {
-			sgl->sg_iovs[idx++] = seg->oes_iov;
+			if ((idx > 0) &&
+			    ((sgl->sg_iovs[idx - 1].iov_buf +
+			      sgl->sg_iovs[idx - 1].iov_len) ==
+			     seg->oes_iov.iov_buf)) {
+				sgl->sg_iovs[idx - 1].iov_len +=
+					seg->oes_iov.iov_len;
+				sgl->sg_iovs[idx - 1].iov_buf_len =
+					sgl->sg_iovs[idx - 1].iov_len;
+			} else {
+				sgl->sg_iovs[idx++] = seg->oes_iov;
+			}
 			if (seg->oes_next == OBJ_EC_SEG_NIL)
 				break;
 			seg = &sorter->ess_segs[seg->oes_next];
@@ -1845,7 +1855,7 @@ obj_ec_recov_add(struct obj_reasb_req *reasb_req,
 	if (recx_lists == NULL || nr == 0)
 		return 0;
 
-	D_SPIN_LOCK(&reasb_req->orr_spin);
+	D_MUTEX_LOCK(&reasb_req->orr_mutex);
 	recov_lists = reasb_req->orr_fail->efi_recx_lists;
 	if (recov_lists == NULL) {
 		D_ALLOC_ARRAY(recov_lists, nr);
@@ -1869,7 +1879,7 @@ obj_ec_recov_add(struct obj_reasb_req *reasb_req,
 		}
 	}
 	daos_recx_ep_list_set(recov_lists, nr, 0, false);
-	D_SPIN_UNLOCK(&reasb_req->orr_spin);
+	D_MUTEX_UNLOCK(&reasb_req->orr_mutex);
 	return 0;
 }
 
@@ -1893,7 +1903,7 @@ obj_ec_parity_check(struct obj_reasb_req *reasb_req,
 	if (recx_lists == NULL || nr == 0)
 		return 0;
 
-	D_SPIN_LOCK(&reasb_req->orr_spin);
+	D_MUTEX_LOCK(&reasb_req->orr_mutex);
 	parity_lists = reasb_req->orr_fail->efi_parity_lists;
 	if (parity_lists == NULL) {
 		reasb_req->orr_fail->efi_parity_lists =
@@ -1915,7 +1925,7 @@ obj_ec_parity_check(struct obj_reasb_req *reasb_req,
 	}
 
 out:
-	D_SPIN_UNLOCK(&reasb_req->orr_spin);
+	D_MUTEX_UNLOCK(&reasb_req->orr_mutex);
 	return rc;
 }
 
@@ -2204,7 +2214,7 @@ obj_ec_recov_task_fini(struct obj_reasb_req *reasb_req)
 	struct obj_ec_fail_info		*fail_info = reasb_req->orr_fail;
 	uint32_t			 i;
 
-	for (i = 0; i < fail_info->efi_nrecx_lists; i++)
+	for (i = 0; i < fail_info->efi_stripe_sgls_nr; i++)
 		d_sgl_fini(&fail_info->efi_stripe_sgls[i], true);
 	D_FREE(fail_info->efi_stripe_sgls);
 
@@ -2240,6 +2250,7 @@ obj_ec_recov_task_init(struct obj_reasb_req *reasb_req, daos_obj_id_t oid,
 	D_ALLOC_ARRAY(fail_info->efi_stripe_sgls, iod_nr);
 	if (fail_info->efi_stripe_sgls == NULL)
 		D_GOTO(out, rc = -DER_NOMEM);
+	fail_info->efi_stripe_sgls_nr = iod_nr;
 
 	recx_ep_nr = 0;
 	for (i = 0; i < iod_nr; i++) {
