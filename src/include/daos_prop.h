@@ -194,7 +194,7 @@ enum daos_cont_props {
 	DAOS_PROP_CO_STATUS,
 	/** OID value to start allocation from */
 	DAOS_PROP_CO_ALLOCED_OID,
-	/** EC cell size, it can overwrite DAOS_PROP_EC_CELL_SZ of pool */
+	/** EC cell size, it can overwrite DAOS_PROP_CO_EC_CELL_SZ of pool */
 	DAOS_PROP_CO_EC_CELL_SZ,
 	DAOS_PROP_CO_MAX,
 };
@@ -444,6 +444,16 @@ daos_prop_free(daos_prop_t *prop);
  */
 daos_prop_t *
 daos_prop_merge(daos_prop_t *old_prop, daos_prop_t *new_prop);
+
+/**
+ * Search and return a property entry of type \a type in the property list
+ * \a prop
+ * Return NULL if not found.
+ *
+ * \param[in]		prop		Property list
+ * \param[in]		type		Type of property to look for
+ */
+struct daos_prop_entry *daos_prop_entry_get(daos_prop_t *prop, uint32_t type);
 
 /**
  * Duplicate a generic pointer value from one DAOS prop entry to another.
