@@ -103,7 +103,7 @@ next:
 	}
 
 	if (j > 0) {
-		rc = dtx_commit(cont, dtes, dcks, j);
+		rc = dtx_commit(cont, dtes, dcks, j, true);
 		if (rc < 0)
 			D_ERROR("Failed to commit the DTXs: rc = "DF_RC"\n",
 				DP_RC(rc));
@@ -432,6 +432,9 @@ out:
 	if (err >= 0 && !cont->sc_closing)
 		/* Drain old committable DTX to help subsequent rebuild. */
 		err = dtx_obj_sync(cont, NULL, dra->epoch);
+
+	if (err == -DER_NONEXIST)
+		err = 0;
 
 	return err;
 }

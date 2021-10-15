@@ -8,6 +8,7 @@ package control
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -120,6 +121,22 @@ func convertPoolProps(in []*PoolProperty, setProp bool) ([]*mgmtpb.PoolProperty,
 	return out, nil
 }
 
+func (pcr *PoolCreateReq) MarshalJSON() ([]byte, error) {
+	props, err := convertPoolProps(pcr.Properties, true)
+	if err != nil {
+		return nil, err
+	}
+
+	type toJSON PoolCreateReq
+	return json.Marshal(struct {
+		Properties []*mgmtpb.PoolProperty `json:"properties"`
+		*toJSON
+	}{
+		Properties: props,
+		toJSON:     (*toJSON)(pcr),
+	})
+}
+
 // genPoolCreateRequest takes a *PoolCreateRequest and generates a valid protobuf
 // request, filling in any missing fields with reasonable defaults.
 func genPoolCreateRequest(in *PoolCreateReq) (out *mgmtpb.PoolCreateReq, err error) {
@@ -142,11 +159,6 @@ func genPoolCreateRequest(in *PoolCreateReq) (out *mgmtpb.PoolCreateReq, err err
 
 	out = new(mgmtpb.PoolCreateReq)
 	if err = convert.Types(in, out); err != nil {
-		return
-	}
-
-	out.Properties, err = convertPoolProps(in.Properties, true)
-	if err != nil {
 		return
 	}
 
@@ -185,7 +197,7 @@ func (r *poolRequest) canRetry(reqErr error, try uint) bool {
 		switch e {
 		// These pool errors can be retried.
 		case drpc.DaosTimedOut, drpc.DaosGroupVersionMismatch,
-			drpc.DaosTryAgain, drpc.DaosOutOfGroup:
+			drpc.DaosTryAgain, drpc.DaosOutOfGroup, drpc.DaosUnreachable:
 			return true
 		default:
 			return false
@@ -333,11 +345,12 @@ type (
 
 	// StorageUsageStats represents DAOS storage usage statistics.
 	StorageUsageStats struct {
-		Total uint64 `json:"total"`
-		Free  uint64 `json:"free"`
-		Min   uint64 `json:"min"`
-		Max   uint64 `json:"max"`
-		Mean  uint64 `json:"mean"`
+		Total     uint64 `json:"total"`
+		Free      uint64 `json:"free"`
+		Min       uint64 `json:"min"`
+		Max       uint64 `json:"max"`
+		Mean      uint64 `json:"mean"`
+		MediaType string `json:"media_type"`
 	}
 
 	// PoolRebuildState indicates the current state of the pool rebuild process.
@@ -370,6 +383,31 @@ type (
 		PoolInfo
 	}
 )
+
+func (sus *StorageUsageStats) UnmarshalJSON(data []byte) error {
+	type fromJSON StorageUsageStats
+	from := &struct {
+		MediaType uint32 `json:"media_type"`
+		*fromJSON
+	}{
+		fromJSON: (*fromJSON)(sus),
+	}
+
+	if err := json.Unmarshal(data, from); err != nil {
+		return err
+	}
+
+	switch from.MediaType {
+	case drpc.MediaTypeScm:
+		sus.MediaType = "scm"
+	case drpc.MediaTypeNvme:
+		sus.MediaType = "nvme"
+	default:
+		sus.MediaType = "unknown"
+	}
+
+	return nil
+}
 
 const (
 	// PoolRebuildStateIdle indicates that the rebuild process is idle.

@@ -3,7 +3,7 @@
 %define agent_svc_name daos_agent.service
 
 %global mercury_version 2.0.1-1%{?dist}
-%global libfabric_version 1.12.0
+%global libfabric_version 1.13.2~rc1-1
 %global __python %{__python3}
 
 %if (0%{?rhel} >= 8)
@@ -13,8 +13,8 @@
 %endif
 
 Name:          daos
-Version:       1.3.104
-Release:       4%{?relval}%{?dist}
+Version:       2.1.100
+Release:       2%{?relval}%{?dist}
 Summary:       DAOS Storage Engine
 
 License:       BSD-2-Clause-Patent
@@ -84,7 +84,7 @@ BuildRequires: libisa-l_crypto-devel
 BuildRequires: libisal-devel
 BuildRequires: libisal_crypto-devel
 %endif
-BuildRequires: daos-raft-devel = 0.8.0
+BuildRequires: daos-raft-devel = 0.8.1
 BuildRequires: openssl-devel
 BuildRequires: libevent-devel
 BuildRequires: libyaml-devel
@@ -163,7 +163,6 @@ Requires: libpmemobj1 >= 1.11
 Requires: ipmctl > 02.00.00.3816
 Requires: libpmemobj >= 1.11
 %endif
-Requires: hwloc
 Requires: mercury = %{mercury_version}
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
@@ -212,9 +211,11 @@ Requires: %{name}-server%{?_isa} = %{version}-%{release}
 %if (0%{?rhel} >= 7) && (0%{?rhel} < 8)
 Requires: python36-distro
 Requires: python36-tabulate
+Requires: python36-defusedxml
 %else
 Requires: python3-distro
 Requires: python3-tabulate
+Requires: python3-defusedxml
 %endif
 Requires: fio
 Requires: dbench
@@ -399,7 +400,6 @@ getent passwd daos_agent >/dev/null || useradd -s /sbin/nologin -r -g daos_agent
 %{_bindir}/daos_agent
 %{_bindir}/dfuse
 %{_bindir}/daos
-%{_bindir}/daos_old
 %{_libdir}/libdaos_cmd_hdlrs.so
 %{_libdir}/libdfs.so
 %{_libdir}/%{name}/API_VERSION
@@ -428,18 +428,17 @@ getent passwd daos_agent >/dev/null || useradd -s /sbin/nologin -r -g daos_agent
 %files tests
 %dir %{_prefix}/lib/daos
 %{_prefix}/lib/daos/TESTING
-%{_prefix}/lib/daos/TESTING/ftest/list_tests.py
 %{_bindir}/hello_drpc
-%{_bindir}/*_test*
 %{_bindir}/jobtest
-%{_bindir}/self_test
 %{_libdir}/libdaos_tests.so
 %{_bindir}/jump_pl_map
 %{_bindir}/ring_pl_map
 %{_bindir}/pl_bench
 %{_bindir}/smd_ut
 %{_bindir}/vea_ut
+%{_bindir}/vea_stress
 %{_bindir}/daos_perf
+%{_bindir}/vos_perf
 %{_bindir}/daos_racer
 %{_bindir}/evt_ctl
 %{_bindir}/io_conf
@@ -450,6 +449,16 @@ getent passwd daos_agent >/dev/null || useradd -s /sbin/nologin -r -g daos_agent
 %{_bindir}/crt_launch
 %{_bindir}/daos_test
 %{_bindir}/dfs_test
+%{_bindir}/common_test
+%{_bindir}/acl_dump_test
+%{_bindir}/agent_tests
+%{_bindir}/drpc_engine_test
+%{_bindir}/drpc_test
+%{_bindir}/eq_tests
+%{_bindir}/job_tests
+%{_bindir}/security_test
+%{_bindir}/srv_checksum_tests
+%{_bindir}/vos_tests
 %{conf_dir}/fault-inject-cart.yaml
 %{_bindir}/fault_status
 # For avocado tests
@@ -472,6 +481,32 @@ getent passwd daos_agent >/dev/null || useradd -s /sbin/nologin -r -g daos_agent
 %{_libdir}/libdaos_serialize.so
 
 %changelog
+* Mon Oct 13 2021 David Quigley <david.quigley@intel.com> 2.1.100-2
+- Add defusedxml as a required dependency for the test package.
+
+* Wed Oct 13 2021 Johann Lombardi <johann.lombardi@intel.com> 2.1.100-1
+- Switch version to 2.1.100 for 2.2 test builds
+
+* Tue Oct 12 2021 Johann Lombardi <johann.lombardi@intel.com> 1.3.106-1
+- Version bump to 1.3.106 for 2.0 test build 6
+
+* Wed Oct 8 2021 Alexander Oganezov <alexander.a.oganezov@intel.com> 1.13.105-4
+- Update OFI to v1.13.2rc1
+
+* Wed Sep 15 2021 Li Wei <wei.g.li@intel.com> 1.3.105-3
+- Update raft to fix InstallSnapshot performance as well as to avoid some
+  incorrect 0.8.0 RPMs
+
+* Fri Sep 03 2021 Brian J. Murrell <brian.murrell@intel.com> 1.3.105-2
+- Remove R: hwloc; RPM's auto-requires/provides will take care of this
+
+* Tue Aug 24 2021 Jeff Olivier <jeffrey.v.olivier@intel.com> 1.3.105-1
+- Version bump to 1.3.105 for 2.0 test build 5
+
+* Mon Aug 09 2021 Yawei <yawei.niu@intel.com> 1.3.104-5
+- Fix duplicates
+- Add vos_perf
+
 * Thu Aug 05 2021 Christopher Hoffman <christopherx.hoffman@intel.com> 1.3.104-4
 - Update conditional statement to include checking for distributions to
   determine which unit files to use for daos-server and daos-agent

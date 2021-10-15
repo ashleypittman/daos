@@ -132,6 +132,9 @@ class DaosServerYamlParameters(YamlParameters):
         # the self.engines_per_host.value.
         self.engine_params = [self.PerEngineYamlParameters()]
 
+        self.fault_path = BasicParameter(None)
+
+
     def get_params(self, test):
         """Get values for all of the command params from the yaml file.
 
@@ -368,7 +371,8 @@ class DaosServerYamlParameters(YamlParameters):
                 "ABT_MAX_NUM_XSTREAMS=100",
                 "DAOS_MD_CAP=1024",
                 "DD_MASK=mgmt,io,md,epc,rebuild",
-                "D_LOG_FILE_APPEND_PID=1"
+                "D_LOG_FILE_APPEND_PID=1",
+                "COVFILE=/tmp/test.cov"
             ]
             if default_provider == "ofi+sockets":
                 default_env_vars.extend([
@@ -448,6 +452,12 @@ class DaosServerYamlParameters(YamlParameters):
             if self.using_dcpm:
                 self.log.debug("Ignoring the scm_size when scm_class is 'dcpm'")
                 self.scm_size.update(None, "scm_size")
+
+            # Include fault injection settings if configured
+            if test.fault_injection.fault_file:
+                fault_setting = "D_FI_CONFIG={}".format(test.fault_injection.fault_file)
+                if fault_setting not in self.env_vars.value:
+                    self.env_vars.update(fault_setting, "env_vars", True)
 
         @property
         def using_nvme(self):
