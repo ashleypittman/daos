@@ -28,6 +28,8 @@ import compiler_setup
 from prereq_tools import PreReqComponent
 import stack_analyzer
 
+# whitespace.
+
 def get_version():
     """ Read version from VERSION file """
     with open("VERSION", "r") as version_file:
