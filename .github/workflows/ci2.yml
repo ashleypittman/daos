@@ -30,6 +30,7 @@ jobs:
       with:
         key: bc-${{ matrix.distro }}-${{ hashFiles('site_scons', 'utils/docker', 'utils/build.config', 'SConstruct', '.github/workflows/landing-builds.yml', '.dockerignore') }}-{hash}
         restore-keys: bc-${{ matrix.distro }}-${{ hashFiles('site_scons', 'utils/docker', 'utils/build.config', 'SConstruct', '.github/workflows/landing-builds.yml', '.dockerignore') }}-
+        restore-keys: bc-${{ matrix.distro }}-
         skip-save: true
     - name: Update dependencies in image.
       run: docker build . --file utils/docker/Dockerfile.${{ matrix.distro }}
@@ -96,6 +97,7 @@ jobs:
       with:
         key: bc-${{ matrix.distro }}-${{ hashFiles('site_scons', 'utils/docker', 'utils/build.config', 'SConstruct', '.github/workflows/landing-builds.yml', '.dockerignore') }}-{hash}
         restore-keys: bc-${{ matrix.distro }}-${{ hashFiles('site_scons', 'utils/docker', 'utils/build.config', 'SConstruct', '.github/workflows/landing-builds.yml', '.dockerignore') }}-
+        restore-keys: bc-${{ matrix.distro }}-
         skip-save: true
     - name: Update dependencies in image.
       run: docker build . --file utils/docker/Dockerfile.${{ matrix.base }}
