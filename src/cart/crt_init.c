@@ -8,6 +8,7 @@
  * APIs/handling.
  */
 
+
 #include <malloc.h>
 #include <sys/mman.h>
 #include <sys/time.h>
@@ -299,8 +300,7 @@ crt_plugin_fini(void)
 
 	for (i = 0; i < CRT_SRV_CONTEXT_NUM; i++) {
 		D_FREE(crt_plugin_gdata.cpg_prog_cbs[i]);
-		if (crt_plugin_gdata.cpg_prog_cbs_old[i])
-			D_FREE(crt_plugin_gdata.cpg_prog_cbs_old[i]);
+		D_FREE(crt_plugin_gdata.cpg_prog_cbs_old[i]);
 	}
 
 	D_FREE(crt_plugin_gdata.cpg_timeout_cbs);
