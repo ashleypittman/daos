@@ -9,20 +9,11 @@
 from grp import getgrgid
 from pwd import getpwuid
 import re
-import time
 
 from command_utils_base import CommandFailure
 from dmg_utils_base import DmgCommandBase
 from general_utils import get_numeric_list
 from dmg_utils_params import DmgYamlParameters, DmgTransportCredentials
-
-RETRYABLE_POOL_CREATE_ERRORS = [
-    -1006,  # -DER_UNREACH: Can happen after ranks are killed but before
-            #               SWIM has noticed and excluded them.
-    -1019,  # -DER_OOG: Can happen after restart.
-]
-POOL_RETRY_INTERVAL = 1     # seconds
-
 
 class DmgJsonCommandFailure(CommandFailure):
     """Exception raised when a dmg --json command fails."""
@@ -455,17 +446,6 @@ class DmgCommand(DmgCommandBase):
                                        json_err=True, **kwargs)
         if output["error"] is not None:
             self.log.error(output["error"])
-            if output["status"] in RETRYABLE_POOL_CREATE_ERRORS:
-                time.sleep(POOL_RETRY_INTERVAL)
-                return self.pool_create(scm_size, uid=uid, gid=gid,
-                                        nvme_size=nvme_size,
-                                        target_list=target_list,
-                                        svcn=svcn,
-                                        acl_file=acl_file,
-                                        size=size,
-                                        tier_ratio=tier_ratio,
-                                        properties=properties,
-                                        label=label)
             if self.exit_status_exception:
                 raise DmgJsonCommandFailure(output["error"])
 
@@ -692,6 +672,24 @@ class DmgCommand(DmgCommandBase):
         return self._get_result(
             ("pool", "set-prop"), pool=pool, name=name, value=value)
 
+    def pool_get_prop(self, pool, name):
+        """Get the Property for a given pool.
+
+        Args:
+            pool (str): Pool for which to get the property.
+            name (str): Get the Property value based on name.
+
+        Returns:
+            CmdResult: Object that contains exit status, stdout, and other
+                information.
+
+        Raises:
+            CommandFailure: if the dmg pool get-prop command fails.
+
+        """
+        return self._get_json_result(
+            ("pool", "get-prop {} {}".format(pool, name)))
+
     def pool_exclude(self, pool, rank, tgt_idx=None):
         """Exclude a daos_server from the pool.
 
@@ -786,6 +784,43 @@ class DmgCommand(DmgCommandBase):
         """
         return self._get_result(
             ("cont", "set-owner"), pool=pool, cont=cont, user=user, group=group)
+
+    def system_cleanup(self, machinename=None, verbose=True):
+        """Release all resources associated with the specified machine.
+
+        Args:
+            machinename (str): Specify machine to clean up resources for.
+            verbose (bool): Retrieve list of pools cleaned up and handle counts.
+
+        Raises:
+            CommandFailure: if the dmg system cleanup command fails.
+
+        Returns:
+            dict: dictionary of output in JSON format
+        """
+        # Sample output:
+        #  "response": {
+        #    "results": [
+        #      {
+        #        "status": 0,
+        #        "msg": "",
+        #        "pool_id": "591ab37d-9efe-4b90-a102-afce50adb8cd",
+        #        "count": 6
+        #      },
+        #      {
+        #        "status": 0,
+        #        "msg": "",
+        #        "pool_id": "168824c4-0000-41e1-a93c-6013a12ae53f",
+        #        "count": 6
+        #      }
+        #    ]
+        #  },
+        #  "error": null,
+        #  "status": 0
+        #}
+
+        return self._get_json_result(
+            ("system", "cleanup"), machinename=machinename, verbose=verbose)
 
     def system_query(self, ranks=None, verbose=True):
         """Query system to obtain the status of the servers.

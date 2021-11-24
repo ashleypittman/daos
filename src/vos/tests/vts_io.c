@@ -116,7 +116,7 @@ daos_unit_oid_t
 gen_oid(daos_ofeat_t ofeats)
 {
 	vts_cntr.cn_oids++;
-	return dts_unit_oid_gen(0, ofeats, 0);
+	return dts_unit_oid_gen(ofeats, 0);
 }
 
 static uint32_t	oid_seed;
@@ -142,7 +142,7 @@ gen_oid_stable(daos_ofeat_t ofeats)
 	uoid.id_pub.lo = oid_count;
 	oid_count += 66179; /* prime */
 	uoid.id_pub.lo |= hdr;
-	daos_obj_set_oid(&uoid.id_pub, oid_count, OC_RP_XSF, oid_seed);
+	daos_obj_set_oid(&uoid.id_pub, daos_obj_feat2type(ofeats), OR_RP_3, 1, oid_seed);
 	oid_count += 1171; /* prime */
 
 	vts_cntr.cn_oids++;
@@ -771,6 +771,10 @@ io_update_and_fetch_dkey(struct io_test_args *arg, daos_epoch_t update_epoch,
 		goto exit;
 
 	/* Verify */
+	if (arg->ta_flags & TF_REC_EXT)
+		assert_int_equal(iod.iod_size, UPDATE_REC_SIZE);
+	else
+		assert_int_equal(iod.iod_size, UPDATE_BUF_SIZE);
 	assert_memory_equal(update_buf, fetch_buf, UPDATE_BUF_SIZE);
 
 exit:
