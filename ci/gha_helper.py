@@ -32,7 +32,7 @@ def main():
         if base_ref.startswith('release/'):
             target_branch = base_ref
         else:
-            target_branch = 'master'
+            target_branch = base_ref
     else:
         # If this isn't a PR then it must be a landing build, so simply use the branch name.
         target_branch = os.getenv('GITHUB_REF_NAME')
