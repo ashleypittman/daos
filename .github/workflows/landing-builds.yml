@@ -26,17 +26,18 @@ jobs:
       fail-fast: false
       max-parallel: 1
       matrix:
-        distro: [ubuntu.20.04, centos.8, leap.15, fedora]
+        distro: [ubuntu.20.04, rocky, fedora, leap.15]
         include:
-          - distro: fedora
-            base: centos.8
-            with: fedora:34
-          - distro: centos.8
-            base: centos.8
-            with: centos:8
           - distro: ubuntu.20.04
             base: ubuntu.20.04
             with: ubuntu.20.04
+          - distro: rocky
+            base: centos.8
+            with: rockylinux/rockylinux:8
+            java: yes
+          - distro: fedora
+            base: centos.8
+            with: fedora:35
           - distro: leap.15
             base: leap.15
             with: leap.15
@@ -124,25 +125,22 @@ jobs:
       fail-fast: false
       max-parallel: 1
       matrix:
-        distro: [ubuntu.20.04, centos.8, leap.15, fedora]
+        distro: [ubuntu.20.04, rocky, fedora, leap.15]
         compiler: [clang, gcc]
         include:
-          - distro: fedora
-            base: centos.8
-            with: fedora:34
-            java: no
-          - distro: centos.8
-            base: centos.8
-            with: centos:8
-            java: yes
           - distro: ubuntu.20.04
             base: ubuntu.20.04
             with: ubuntu.20.04
+          - distro: rocky
+            base: centos.8
+            with: rockylinux/rockylinux:8
             java: yes
+          - distro: fedora
+            base: centos.8
+            with: fedora:35
           - distro: leap.15
             base: leap.15
             with: leap.15
-            java: yes
     env:
       DEPS_JOBS: 10
       BASE_DISTRO: ${{ matrix.with }}
@@ -198,19 +196,18 @@ jobs:
       fail-fast: false
       max-parallel: 1
       matrix:
-        distro: [rocky, centos.7, alma]
+        distro: [centos.7, centos.8, alma]
         include:
-          - distro: rocky
-            base: centos.8
-            with: rockylinux/rockylinux:8
-            java: yes
-          - distro: alma
-            base: centos.8
-            with: almalinux:8
-            java: yes
           - distro: centos.7
             base: centos.7
             with: centos.7
+            java: yes
+          - distro: centos.8
+            base: centos.8
+            with: centos:8
+	  - distro: alma
+            base: centos.8
+            with: almalinux:8
             java: yes
     env:
       DEPS_JOBS: 10
