@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - release/*
+      - gha-fewer-builds
 
 jobs:
 
@@ -205,7 +206,7 @@ jobs:
           - distro: centos.8
             base: centos.8
             with: centos:8
-	  - distro: alma
+          - distro: alma
             base: centos.8
             with: almalinux:8
             java: yes
