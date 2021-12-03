@@ -132,19 +132,19 @@ jobs:
           - distro: ubuntu.20.04
             base: ubuntu.20.04
             with: ubuntu.20.04
-	    java: yes
+            java: yes
           - distro: rocky
             base: centos.8
             with: rockylinux/rockylinux:8
-	    java: yes
+            java: yes
           - distro: fedora
             base: centos.8
             with: fedora:35
-	    java: no
+            java: no
           - distro: leap.15
             base: leap.15
             with: leap.15
-	    java: yes
+            java: yes
     env:
       DEPS_JOBS: 10
       BASE_DISTRO: ${{ matrix.with }}
