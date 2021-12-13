@@ -8,6 +8,7 @@
  */
 #define D_LOGFAC	DD_FAC(grp)
 
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "crt_internal.h"
