@@ -111,8 +111,8 @@ jobs:
         with:
           key: ${{ steps.commit-hash.outputs.key }}
           restore-keys: |
-            ${{ steps.commit-hash.outputs.restore }}
-            ${{ steps.commit-hash.outputs.restore_prev }}
+            layer-${{ steps.commit-hash.outputs.restore }}
+            layer-${{ steps.commit-hash.outputs.restore_prev }}
           skip-save: true
       - name: Update dependencies in image.
         run: docker build . --file utils/docker/Dockerfile.${{ matrix.base }}
@@ -301,6 +301,7 @@ jobs:
 
   Build-branch-ARM:
     name: Build DAOS (ARM64)
+    if: github.repository == 'daos-stack/daos'
     runs-on: [self-hosted, ARM64]
     strategy:
       fail-fast: false
