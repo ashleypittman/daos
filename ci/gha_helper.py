@@ -108,7 +108,7 @@ def main():
         restore = f'bc-{target_branch}-{base_distro}-{build_hash}-{commit_hash}'
         set_output('restore', restore)
 
-        restore_prev = 'bc-{target_branch}-{base_distro}-{build_hash}'
+        restore_prev = f'bc-{target_branch}-{base_distro}-{build_hash}'
         set_output('restore_prev', restore_prev)
 
     else:

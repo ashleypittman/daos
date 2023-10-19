@@ -36,8 +36,6 @@ jobs:
       fail-fast: false
       max-parallel: 1
       matrix:
-        #         distro: [ubuntu, rocky, fedora, leap.15]
-        distro: [ubuntu]
         include:
           - distro: ubuntu
             base: ubuntu
@@ -79,7 +77,6 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        distro: [ubuntu]
         include:
           - distro: ubuntu
             base: ubuntu
@@ -101,7 +98,7 @@ jobs:
       - uses: jpribyl/action-docker-layer-caching@v0.1.1
         continue-on-error: true
         with:
-          key: ${{ steps.commit-hash.outputs.key }}
+          key: layer-${{ steps.commit-hash.outputs.key }}
           restore-keys: |
             layer-${{ steps.commit-hash.outputs.restore }}
             layer-${{ steps.commit-hash.outputs.restore_prev }}
