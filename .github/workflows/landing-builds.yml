@@ -36,7 +36,8 @@ jobs:
       fail-fast: false
       max-parallel: 1
       matrix:
-        distro: [ubuntu, rocky, fedora, leap.15]
+        #         distro: [ubuntu, rocky, fedora, leap.15]
+        distro: [ubuntu]
         include:
           - distro: ubuntu
             base: ubuntu
@@ -75,7 +76,7 @@ jobs:
                             --build-arg BASE_DISTRO
       - name: Build dependencies in Docker
         run: docker build . --file utils/docker/Dockerfile.${{ matrix.base }}
-                            --build-arg DAOS_BUILD=no
+                            --build-arg DAOS_DEPS_BUILD=no
                             --build-arg DEPS_JOBS
                             --build-arg BASE_DISTRO
       - name: Prune images not required for build.
@@ -139,6 +140,7 @@ jobs:
 
   Build:
     name: Build DAOS in image
+    if: github.repository == 'daos-stack/daos'
     needs: Prepare
     runs-on: ubuntu-22.04
     strategy:
@@ -218,6 +220,7 @@ jobs:
 
   Build-branch:
     name: Build DAOS
+    if: github.repository == 'daos-stack/daos'
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
