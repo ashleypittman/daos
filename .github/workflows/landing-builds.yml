@@ -68,8 +68,8 @@ jobs:
                             --build-arg DAOS_DEPS_BUILD=no
                             --build-arg DEPS_JOBS
                             --build-arg BASE_DISTRO
-      - name: Prune images not required for build.
-        run: docker images --all --filter label=DAOS=true --quiet | xargs docker rmi --no-prune
+        # - name: Prune images not required for build.
+        #   run: docker images --all --filter label=DAOS=true --quiet | xargs docker rmi --no-prune
 
   Build-and-test:
     name: Run DAOS/NLT tests
