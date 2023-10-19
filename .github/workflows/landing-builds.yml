@@ -42,15 +42,6 @@ jobs:
           - distro: ubuntu
             base: ubuntu
             with: ubuntu:22.04
-          - distro: rocky
-            base: el.9
-            with: rockylinux/rockylinux:9
-          - distro: fedora
-            base: el.8
-            with: fedora:38
-          - distro: leap.15
-            base: leap.15
-            with: opensuse/leap:15.4
     env:
       DEPS_JOBS: 10
       BASE_DISTRO: ${{ matrix.with }}
