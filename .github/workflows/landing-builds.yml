@@ -98,10 +98,11 @@ jobs:
       - uses: jpribyl/action-docker-layer-caching@v0.1.1
         continue-on-error: true
         with:
-          key: layer-${{ steps.commit-hash.outputs.key }}
+          key: ${{ steps.commit-hash.outputs.key }}
           restore-keys: |
             layer-${{ steps.commit-hash.outputs.restore }}
             layer-${{ steps.commit-hash.outputs.restore_prev }}
+            layer-bc-master
           skip-save: true
       - name: Update dependencies in image.
         run: docker build . --file utils/docker/Dockerfile.${{ matrix.base }}
