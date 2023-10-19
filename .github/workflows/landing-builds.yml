@@ -100,6 +100,8 @@ jobs:
         with:
           key: ${{ steps.commit-hash.outputs.key }}
           restore-keys: |
+            ${{ steps.commit-hash.outputs.restore }}
+            ${{ steps.commit-hash.outputs.restore_prev }}
             layer-${{ steps.commit-hash.outputs.restore }}
             layer-${{ steps.commit-hash.outputs.restore_prev }}
             layer-bc-master
