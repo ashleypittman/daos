@@ -13,7 +13,7 @@ if ! [ -f "${PROJECT_DIR}/utils/sl/${SETUP_FILE}" ]; then
   exit 1
 fi
 
-# shellcheck source=../../../../../utils/sl/setup_local.sh
+# shellcheck disable=SC1091
 source "${PROJECT_DIR}/utils/sl/${SETUP_FILE}"
 
 popd

@@ -6,7 +6,7 @@ set -e -o pipefail
 CWD="$(realpath "$(dirname $0)")"
 
 set -a
-# shellcheck source=.env
+# shellcheck disable=SC1091
 source "$CWD/.env"
 set +a
 
