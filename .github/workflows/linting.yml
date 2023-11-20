@@ -39,7 +39,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Run
-        run: sudo dny -y install ShellCheck
+        run: sudo apt-get update && sudo apt-get install shellcheck
       - name: Run Shellcheck
         run: find src -type f | grep -v src/control/vendor | xargs -l1 file | grep "shell script" | cut -d \ -f 1 | xargs -l1 shellcheck -f gcc
 
