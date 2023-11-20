@@ -7,6 +7,7 @@ CWD="$(realpath $(dirname $0))"
 
 DAOS_POOL_SIZE=10G
 
+# shellcheck disable=SC2034
 ANSI_COLOR_BLACK=30
 ANSI_COLOR_RED=31
 ANSI_COLOR_GREEN=32

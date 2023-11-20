@@ -2,6 +2,7 @@
 
 cwd=$(dirname "$0")
 DAOS_DIR=${DAOS_DIR:-$(cd "$cwd/../../.." && echo "$PWD")}
+# shellcheck disable=SC1091
 source "${DAOS_DIR}/.build_vars.sh"
 BTR=${SL_BUILD_DIR}/src/common/tests/btree
 VCMD=()
