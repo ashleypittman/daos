@@ -13,15 +13,17 @@ if ! [ -f "${PROJECT_DIR}/utils/sl/${SETUP_FILE}" ]; then
   exit 1
 fi
 
-# shellcheck disable=SC1091
+# shellcheck disable=SC1090
 source "${PROJECT_DIR}/utils/sl/${SETUP_FILE}"
 
 popd
 
 function print_header {
   echo
+  # shellcheck disable=SC2183
   printf '%80s\n' | tr ' ' =
   echo "          ${1}"
+  # shellcheck disable=SC2183
   printf '%80s\n' | tr ' ' =
   echo
 }
