@@ -40,6 +40,8 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Run
         run: sudo apt-get update && sudo apt-get install shellcheck
+      - name: Add error parser
+        run: echo -n "::add-matcher::ci/shellcheck-matcher.json"
       - name: Run Shellcheck
         run: \[ -x ci/run_shellcheck.sh \] && ./ci/run_shellcheck.sh
 
