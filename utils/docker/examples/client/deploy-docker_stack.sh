@@ -6,7 +6,7 @@ set -e -o pipefail
 CWD="$(realpath "$(dirname $0)")"
 
 set -a
-# shellcheck source-path=.
+# shellcheck source=.env
 source "$CWD/.env"
 set +a
 

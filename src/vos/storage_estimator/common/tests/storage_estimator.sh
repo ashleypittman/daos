@@ -13,7 +13,7 @@ if ! [ -f "${PROJECT_DIR}/utils/sl/${SETUP_FILE}" ]; then
   exit 1
 fi
 
-# shellcheck source-path=../../../../../utils/sl
+# shellcheck source=../../../../../utils/sl/setup_local.sh
 source "${PROJECT_DIR}/utils/sl/${SETUP_FILE}"
 
 popd
