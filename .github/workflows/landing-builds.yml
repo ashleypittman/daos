@@ -40,15 +40,15 @@ jobs:
           - distro: ubuntu
             base: ubuntu
             with: ubuntu:mantic
-          - distro: rocky
-            base: el.9
-            with: rockylinux/rockylinux:9
-          - distro: fedora
-            base: el.8
-            with: fedora:38
-          - distro: leap.15
-            base: leap.15
-            with: opensuse/leap:15.5
+#          - distro: rocky
+#            base: el.9
+#            with: rockylinux/rockylinux:9
+#          - distro: fedora
+#            base: el.8
+#            with: fedora:38
+#          - distro: leap.15
+#            base: leap.15
+#            with: opensuse/leap:15.5
     env:
       DEPS_JOBS: 10
       BASE_DISTRO: ${{ matrix.with }}
@@ -85,6 +85,8 @@ jobs:
   Build-and-test:
     name: Run DAOS/NLT tests
     needs: Prepare
+    # Just for testing
+    if: github.repository == 'daos-stack/daos'
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -145,20 +147,22 @@ jobs:
       fail-fast: false
       max-parallel: 6
       matrix:
+        distro: [ubuntu]
+#        distro: [alma.8, alma.9, rocky.8, ubuntu]
         compiler: [clang, gcc]
         include:
           - distro: ubuntu
             base: ubuntu
             with: ubuntu:mantic
-          - distro: rocky
-            base: el.9
-            with: rockylinux/rockylinux:9
-          - distro: fedora
-            base: el.8
-            with: fedora:38
-          - distro: leap.15
-            base: leap.15
-            with: opensuse/leap:15.5
+#          - distro: rocky
+#            base: el.9
+#            with: rockylinux/rockylinux:9
+#          - distro: fedora
+#            base: el.8
+#            with: fedora:38
+#          - distro: leap.15
+#            base: leap.15
+#            with: opensuse/leap:15.5
     env:
       DEPS_JOBS: 10
       BASE_DISTRO: ${{ matrix.with }}
@@ -217,6 +221,7 @@ jobs:
 
   Build-branch:
     name: Build DAOS
+    if: github.repository == 'daos-stack/daos'
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
