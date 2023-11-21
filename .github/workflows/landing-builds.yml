@@ -71,6 +71,8 @@ jobs:
           concurrency: 1
       - name: debug
         run: docker image list -a
+      - name: debug2
+        run: md5sum utils/scripts/install-ubuntu.sh
       - name: Prepare base image in Docker
         run: docker build . --file utils/docker/Dockerfile.${{ matrix.base }}
                             --build-arg DAOS_DEPS_BUILD=no
@@ -193,6 +195,8 @@ jobs:
           skip-save: true
       - name: debug
         run: docker image list -a
+      - name: debug2
+        run: md5sum utils/scripts/install-ubuntu.sh
       - name: Rebuild dependencies in docker.
         run: docker build . --file utils/docker/Dockerfile.${{ matrix.base }}
                             --build-arg DAOS_BUILD=no
