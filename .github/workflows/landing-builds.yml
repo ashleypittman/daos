@@ -41,7 +41,7 @@ jobs:
         include:
           - distro: ubuntu
             base: ubuntu
-            with: ubuntu:mantic
+            with: ubuntu:22.04
 #          - distro: rocky
 #            base: el.9
 #            with: rockylinux/rockylinux:9
@@ -159,7 +159,7 @@ jobs:
         include:
           - distro: ubuntu
             base: ubuntu
-            with: ubuntu:mantic
+            with: ubuntu:22.04
 #          - distro: rocky
 #            base: el.9
 #            with: rockylinux/rockylinux:9
