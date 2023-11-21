@@ -205,8 +205,9 @@ jobs:
         run: stat utils/scripts/install-ubuntu.sh
       - name: Rebuild dependencies in docker.
         run: docker build . --file utils/docker/Dockerfile.${{ matrix.base }}
-                            --build-arg DAOS_DEPC_BUILD=no
+                            --build-arg DAOS_DEPS_BUILD=no
                             --build-arg DEPS_JOBS
+                            --cache-from my-image-name
                             --build-arg BASE_DISTRO
                             --tag my-image-name:$(date +%s)
       - name: debug
