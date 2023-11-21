@@ -78,7 +78,7 @@ jobs:
                             --build-arg DAOS_DEPS_BUILD=no
                             --build-arg DEPS_JOBS
                             --build-arg BASE_DISTRO
-                            --cache-to mode=max,type=inline
+                            --cache-to mode=max,type=gha
                             --tag my-image-name:$(date +%s)
 
                             #      - name: Build dependencies in Docker
@@ -207,7 +207,7 @@ jobs:
         run: docker build . --file utils/docker/Dockerfile.${{ matrix.base }}
                             --build-arg DAOS_DEPS_BUILD=no
                             --build-arg DEPS_JOBS
-                            --cache-from type=inline,ref=my-image-name
+                            --cache-from type=gha,ref=my-image-name
                             --build-arg BASE_DISTRO
                             --tag my-image-name2
       - name: debug
