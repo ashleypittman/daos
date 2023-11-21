@@ -36,6 +36,8 @@ jobs:
       fail-fast: false
       max-parallel: 1
       matrix:
+        distro: [ubuntu]
+#         distro: [ubuntu, rocky, fedora, leap.15]
         include:
           - distro: ubuntu
             base: ubuntu
@@ -67,6 +69,8 @@ jobs:
           key: ${{ steps.commit-hash.outputs.key }}
           restore-keys: ${{ steps.commit-hash.outputs.restore }}
           concurrency: 1
+      - name: debug
+        run: docker image list -a
       - name: Prepare base image in Docker
         run: docker build . --file utils/docker/Dockerfile.${{ matrix.base }}
                             --build-arg DAOS_DEPS_BUILD=no
@@ -77,7 +81,9 @@ jobs:
                             --build-arg DAOS_BUILD=no
                             --build-arg DEPS_JOBS
                             --build-arg BASE_DISTRO
-        # This seems to have broken with a docker change, perhaps intermediate layers are now
+      - name: debug
+        run: docker image list -a
+                            # This seems to have broken with a docker change, perhaps intermediate layers are now
         # hidden somehow.
         # - name: Prune images not required for build.
         #   run: docker images --all --filter label=DAOS=true --quiet | xargs docker rmi --no-prune
@@ -145,10 +151,10 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
-      max-parallel: 6
+      max-parallel: 2
       matrix:
         distro: [ubuntu]
-#        distro: [alma.8, alma.9, rocky.8, ubuntu]
+#         distro: [ubuntu, rocky, fedora, leap.15]
         compiler: [clang, gcc]
         include:
           - distro: ubuntu
@@ -185,6 +191,17 @@ jobs:
             ${{ steps.commit-hash.outputs.restore }}
             ${{ steps.commit-hash.outputs.restore_prev }}
           skip-save: true
+      - name: debug
+        run: docker image list -a
+      - name: Rebuild dependencies in docker.
+        run: docker build . --file utils/docker/Dockerfile.${{ matrix.base }}
+                            --build-arg DAOS_BUILD=no
+                            --build-arg DEPS_JOBS
+                            --build-arg BASE_DISTRO
+      - name: debug
+        run: docker image list -a
+      - name: stop
+        run: false                  
       - name: Build in docker.
         run: docker build . --file utils/docker/Dockerfile.${{ matrix.base }}
                             --build-arg DEPS_JOBS
@@ -226,6 +243,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        distro: [alma.8, alma.9, rocky.8, ubuntu]
         include:
           - distro: alma.8
             base: el.8
