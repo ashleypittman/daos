@@ -207,13 +207,15 @@ jobs:
         run: docker build . --file utils/docker/Dockerfile.${{ matrix.base }}
                             --build-arg DAOS_DEPS_BUILD=no
                             --build-arg DEPS_JOBS
-                            --cache-from my-image-name
+                            --cache-from type=inline,ref=my-image-name
                             --build-arg BASE_DISTRO
-                            --tag my-image-name:$(date +%s)
+                            --tag my-image-name2
       - name: debug
         run: docker image list -a
       - name: image
-        run: docker history --no-trunc build-image
+        run: docker history --no-trunc my-image-name
+      - name: image2
+        run: docker history --no-trunc my-image-name2
 #      - name: Build in docker.
 #        run: docker build . --file utils/docker/Dockerfile.${{ matrix.base }}
 #                            --build-arg DEPS_JOBS
