@@ -1,0 +1,15 @@
+name: Process PR merge
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  check_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show env.
+        run: env
+      - name: run gh
+        run: gh remote -v
